@@ -3,6 +3,8 @@
 let socket = io();
 const canvas = document.getElementById("canvas");
 let context = canvas.getContext("2d");
+canvas.width = 800;
+canvas.height = 800;
 
 socket.emit("new player");
 
