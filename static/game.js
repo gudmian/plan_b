@@ -62,12 +62,14 @@ setInterval(() => {
 
 socket.on("render", (state) => {
     console.log("Rendering...")
-    dynamcCanvas.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
+    dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
     function renderPlayers() {
         dynamicContext.fillStyle = "red"
-        for (player of state){
+        for (id in state){
+            let player = state[id];
+            //console.log(player.posX, " ", player.posY, " ", player.radius);
             dynamicContext.beginPath();
-            dynamicContext.arcTo(player.posX, player.posY, player.radius, 0, 1.5 * Math.PI)
+            dynamicContext.arc(player.posX, player.posY, player.radius, 0, 1.5 * Math.PI)
             dynamicContext.fill()
         }
     }
@@ -91,7 +93,7 @@ socket.on("render static", (map) => {
             let cell = map.cellMatrix[i][j];
             if (cell.isBlock) {
                 staticContext.fillStyle = "black";
-                staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
+               staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
             else {
                 staticContext.fillStyle = "green";

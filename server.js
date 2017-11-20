@@ -34,17 +34,39 @@ mainSocket.on("connection", (socket) => {
 
     socket.on("new player", () => {
         let player = new Player(300, 200);
+        console.log(player.posX, " ", player.posY, " ", player.radius);
         player.id = socket.id;
-        players[player.id] = player;
+        players[socket.id] = player;
         socket.emit("render static", map);
     });
 
-    socket.on("change state", (movement)=>{
+    socket.on("change state", (data)=>{
+        let player = players[socket.id] || {};
+        if (data.left) {
+            player.posX -= 5;
+        }
+        if (data.up) {
+            player.posY -= 5;
+        }
+        if (data.right) {
+            player.posX += 5;
+        }
+        if (data.down) {
+            player.posY += 5;
+        }
+    });
 
+    socket.on("disconnect", ()=>{
+        delete players[socket.id];
     });
 
 
 });
+
+
+setInterval(()=>{
+    mainSocket.sockets.emit("render", players);
+},1000/60);
 
 
 server.listen(8080, () => {
