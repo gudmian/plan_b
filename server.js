@@ -1,5 +1,4 @@
-"use strict";
-
+"use strict"
 let http = require("http");
 let path = require("path");
 let express = require("express");
