@@ -8,3 +8,5 @@ class PowerUp{
         this.type = type;
     }
 }
+
+module.exports= PowerUp;

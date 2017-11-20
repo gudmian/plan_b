@@ -1,6 +1,7 @@
 "use strict"
 
 var Level = require("../global").constants.LEVEL
+let Cell = require("./cell");
 
 class Map {
     constructor(levelType) {
@@ -18,10 +19,10 @@ class Map {
         this.cellMatrix = [];
 
         var generationMatrix = Level.lvlgen[levelType - 1]
-        for (var i = 0; i < levelSize; i++) {
+        for (var i = 0; i < this.levelSize; i++) {
             this.cellMatrix [i] = [];
-            for (var j = 0; j < levelSize; j++) {
-                this.cellMatrix [i][j] = new Cell(x, y, generationMatrix[i][j])
+            for (var j = 0; j < this.levelSize; j++) {
+                this.cellMatrix [i][j] = new Cell(i, j, generationMatrix[i][j])
             }
 
         }
@@ -43,3 +44,5 @@ class Map {
         }
     }
 }
+
+module.exports = Map;

@@ -1,5 +1,4 @@
-var exports = {}
-exports.constants = {
+module.exports.constants = {
     LEVEL:
         {
             SMALL: 1,
@@ -48,4 +47,4 @@ exports.constants = {
             HEALTH: 4,
             SHIELD: 5,
         },
-}
+};

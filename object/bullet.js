@@ -10,3 +10,5 @@ class Bullet{
         this.posY = posY;
     }
 }
+
+module.exports = Bullet;

@@ -1,7 +1,7 @@
 "use strict"
 
-var Weapon = require("../global").constants.WEAPON
-var Map = require("../map")
+var Weapon = require("../global").constants.WEAPON;
+var Map = require("./map");
 
 class Player {
     constructor(x, y) {
@@ -11,7 +11,7 @@ class Player {
         var posX = x;
         var posY = y;
         var angle = 0;
-        var weapon = new Weapon(Weapon.SIMPLE)
+        //var weapon = new Weapon(Weapon.SIMPLE)
         //weapon.setPlayer(this.id)
     }
 
@@ -20,3 +20,5 @@ class Player {
         new Player();
     }
 }
+
+module.exports = Player;

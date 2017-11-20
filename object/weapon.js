@@ -11,3 +11,5 @@ class Weapon{
     }
 
 }
+
+module.exports = Weapon;
