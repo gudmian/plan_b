@@ -1,3 +1,5 @@
+"use strict";
+
 let http = require("http");
 let path = require("path");
 let express = require("express");
@@ -15,6 +17,20 @@ app.use(express.static(path.join(__dirname, "/static")));
 app.get("/", (req, res)=>{
     res.sendfile("index.html");
 });
+
+
+
+let players{
+
+};
+
+mainSocket.on("connection", (socket)=>{
+    socket.on("connect", ()=>{
+
+    });
+});
+
+
 
 
 server.listen(8080, ()=>{
