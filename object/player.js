@@ -7,7 +7,7 @@ class Player {
     constructor(x, y) {
         var id;
         var name;
-        var radius = 50 /*px*/;
+        var radius = 20 /*px*/;
         var posX = x;
         var posY = y;
         var angle = 0;
