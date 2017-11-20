@@ -1,6 +1,6 @@
 "use strict"
 
-var Level = require("./global").constants.LEVEL
+var Level = require("../global").constants.LEVEL
 
 class Map {
     constructor(levelType) {
