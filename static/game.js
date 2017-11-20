@@ -1,10 +1,14 @@
 "use sctrict"
 
 let socket = io();
-const canvas = document.getElementById("canvas");
-let context = canvas.getContext("2d");
-canvas.width = 800;
-canvas.height = 800;
+const staticCanvas = document.getElementById("layer1");
+const dynamcCanvas = document.getElementById("layer2")
+let staticContext = staticCanvas.getContext("2d");
+let dynamicContext = dynamcCanvas.getContext("2d");
+staticCanvas.width = 800;
+dynamcCanvas.width = 800;
+staticCanvas.height = 800;
+dynamcCanvas.height = 800;
 
 socket.emit("new player");
 
@@ -58,9 +62,14 @@ setInterval(() => {
 
 socket.on("render", (state) => {
     console.log("Rendering...")
-
+    dynamcCanvas.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
     function renderPlayers() {
-
+        dynamicContext.fillStyle = "red"
+        for (player of state){
+            dynamicContext.beginPath();
+            dynamicContext.arcTo(player.posX, player.posY, player.radius, 0, 1.5 * Math.PI)
+            dynamicContext.fill()
+        }
     }
 
     function renderItems() {
@@ -70,6 +79,8 @@ socket.on("render", (state) => {
     function renderBullets() {
 
     }
+
+    renderPlayers();
 });
 
 socket.on("render static", (map) => {
@@ -78,14 +89,15 @@ socket.on("render static", (map) => {
     for (let i = 0; i < map.levelSize; i++) {
         for (let j = 0; j < map.levelSize; j++) {
             let cell = map.cellMatrix[i][j];
-            if(cell.isBlock){
-                context.fillStyle = "black";
-                context.fillRect(cell.posX, cell.posY, cell.size, cell.size);
+            if (cell.isBlock) {
+                staticContext.fillStyle = "black";
+                staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
-            else{
-                context.fillStyle = "green";
-                context.fillRect(cell.posX, cell.posY, cell.size, cell.size);
+            else {
+                staticContext.fillStyle = "green";
+                staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
         }
     }
 });
+
