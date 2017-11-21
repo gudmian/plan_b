@@ -92,7 +92,6 @@ mainSocket.on("connection", (socket) => {
                     let currentAngleR = currentAngle * (Math.PI / 180);
                     let intervals = 5;
                     for (let step = 0; step < intervals; step++) {
-                        //if(bullet === undefined || bullet === null) break;
                         let xFactor = bullet.velo * Math.cos(currentAngleR) / (intervals - step);
                         let yFactor = bullet.velo * Math.sin(currentAngleR) / (intervals - step);
                         bullet.posX += xFactor;
