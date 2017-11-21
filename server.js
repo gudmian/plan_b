@@ -23,7 +23,13 @@ app.get("/", (req, res) => {
 let players = {};
 let bullets = {};
 let items = {};
+
 let map = null;
+
+let renderData = {
+    playersInf: players,
+    bulletsInf: bullets
+};
 
 mainSocket.on("connection", (socket) => {
     if (!map) {
@@ -45,13 +51,12 @@ mainSocket.on("connection", (socket) => {
 
     socket.on("change state", (data) => {
 
-        console.log("Mouse angle", getMouseAngle(data))
         let player = players[socket.id] || {};
 
         let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
         let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
         let topCell = map.getCellByPoint(player.posX, player.posY - 20)
-        let bottomCell = map.getCellByPoint(player.posX , player.posY + 15)
+        let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
 
         if (data.left) {
             if (!player.collideLeft(leftCell)) {
@@ -83,17 +88,27 @@ mainSocket.on("connection", (socket) => {
             for (var bullet of bullets[ids]) {
                 let currentAngle = bullet.angle;
                 let currentAngleR = currentAngle * (Math.PI / 180);
-                bullet.posX += bullet.velo * Math.cos(currentAngleR);
-                bullet.posY += bullet.velo * Math.sin(currentAngleR);
-                for (let player in players){
-                    let player = players[socket.id];
-                    if (bullet.collideBullet(player)){
-                        bullet.killBullet(player);
+                let intervals = 5;
+                for (let step = 0; step < intervals; step++) {
+                //if(bullet === undefined || bullet === null) break;
+                let xFactor = bullet.velo * Math.cos(currentAngleR) / (intervals - step);
+                let yFactor = bullet.velo * Math.sin(currentAngleR) / (intervals - step);
+                bullet.posX += xFactor;
+                bullet.posY += yFactor;
+                let cell = map.getCellByPoint(bullet.posX, bullet.posY);
+                if (cell && cell.isBlock) {
+                    console.log("Bullet collide with wall");
+                    buletDead(ids, bullet);
+                } else {
+                    for (let id in players) {
+                        if(bullet.owner === id) continue;
+                        if (bullet.collideWithPlayer(players[id])) {
+                            console.log("Bullet collide with player");
+                            buletDead(ids, bullet);
+                            delete players[id];
+                        }
                     }
                 }
-                let cell = map.getCellByPoint(bullet.posX, bullet.posY);
-                if(bullet.collideBullet(cell)){
-                    bullet.killBullet(cell);
                 }
             }
         }
@@ -106,9 +121,15 @@ mainSocket.on("connection", (socket) => {
 
 });
 
+function buletDead(id, bullet) {
+    let bulletIndex = bullets[id].indexOf(bullet);
+    bullets[id].splice(bulletIndex, 1);
+}
+
+let nextFire = 0;
+
 function fireIfPossible(id) {
-    let nextFire;
-    if (nextFire) {
+    if (nextFire !== 0) {
         if (nextFire < Date.now()) {
             fire(id);
             nextFire = Date.now() + 1000;
@@ -120,10 +141,13 @@ function fireIfPossible(id) {
 }
 
 function fire(id) {
-    if(!bullets[id]){
+    if (!bullets[id]) {
         bullets[id] = [];
     }
-    bullets[id].push(new Bullet(50, 5, 15, players[id].angle, players[id].posX, players[id].posY));
+    let currentAngle = players[id].angle * (Math.PI / 180);
+    let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
+    let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
+    bullets[id].push(new Bullet(50, 5, 10, currentAngle*(180/Math.PI), bulletX, bulletY, id));
 }
 
 function getMouseAngle(movement) {
@@ -139,10 +163,6 @@ function normalizeAngle(angle) {
     return angle;
 }
 
-let renderData = {
-    playersInf: players,
-    bulletsInf: bullets
-}
 
 setInterval(() => {
     mainSocket.sockets.emit("render", renderData);
