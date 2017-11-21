@@ -40,9 +40,8 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("new player", () => {
-        let x = 300
-        let y = 400
-        let player = new Player(x, y, map.getCellByPoint(x, y));
+        let spawnCell = map.getEmptyCell()
+        let player = new Player(spawnCell.posX + spawnCell.size/2, spawnCell.posY + spawnCell.size/2, map.getCellByPoint(x, y));
         console.log(player.posX, " ", player.posY, " ", player.radius);
         player.id = socket.id;
         players[socket.id] = player;
@@ -146,8 +145,9 @@ function fireIfPossible(id) {
     }
 }
 
-function respawnPlayer(x, y) {
-    return new Player(x, y, map.getCellByPoint(x, y));
+function respawnPlayer() {
+    let spawnCell = map.getEmptyCell()
+    return new Player(spawnCell.posX + spawnCell.size/2, spawnCell.posY + spawnCell.size/2,  map.getCellByPoint(x, y));
 }
 
 function fire(id) {
