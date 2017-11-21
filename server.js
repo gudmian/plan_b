@@ -49,9 +49,9 @@ mainSocket.on("connection", (socket) => {
         let player = players[socket.id] || {};
 
         let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
-        let rightCell = map.getCellByPoint(player.posX + 20, player.posY)
+        let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
         let topCell = map.getCellByPoint(player.posX, player.posY - 20)
-        let bottomCell = map.getCellByPoint(player.posX , player.posY + 20)
+        let bottomCell = map.getCellByPoint(player.posX , player.posY + 15)
 
         if (data.left) {
             if (!player.collideLeft(leftCell)) {
@@ -80,24 +80,23 @@ mainSocket.on("connection", (socket) => {
             fireIfPossible(socket.id);
         }
         for (let ids in bullets) {
-            let bullet = bullets[ids];
-            let currentAngle = bullet.angle;
-            let currentAngleR = currentAngle * (Math.PI / 180);
-            let currentX = bullet.posX;
-            let currentY = bullet.posY;
+            for (var bullet of bullets[ids]){
+                let currentAngle = bullet.angle;
+                let currentAngleR = currentAngle * (Math.PI / 180);
 
-            if (currentAngle >= 0 && currentAngle < 90) {
-                bullet.posX += currentX * Math.cos(currentAngleR);
-                bullet.posY += currentX * Math.sin(currentAngleR);
-            } else if (currentAngle >= 90 && currentAngle < 180) {
-                bullet.posX -= currentX * Math.cos(currentAngleR);
-                bullet.posY += currentX * Math.sin(currentAngleR);
-            } else if (currentAngle >= 180 && currentAngle < 270) {
-                bullet.posX -= currentX * Math.cos(currentAngleR);
-                bullet.posY -= currentX * Math.sin(currentAngleR);
-            } else {
-                bullet.posX += currentX * Math.cos(currentAngleR);
-                bullet.posY -= currentX * Math.sin(currentAngleR);
+                if (currentAngle >= 0 && currentAngle < 90) {
+                    bullet.posX += bullet.velo * Math.cos(currentAngleR);
+                    bullet.posY += bullet.velo * Math.sin(currentAngleR);
+                } else if (currentAngle >= 90 && currentAngle < 180) {
+                    bullet.posX += bullet.velo * Math.cos(currentAngleR);
+                    bullet.posY += bullet.velo * Math.sin(currentAngleR);
+                } else if (currentAngle >= 180 && currentAngle < 270) {
+                    bullet.posX += bullet.velo * Math.cos(currentAngleR);
+                    bullet.posY += bullet.velo * Math.sin(currentAngleR);
+                } else {
+                    bullet.posX += bullet.velo * Math.cos(currentAngleR);
+                    bullet.posY += bullet.velo * Math.sin(currentAngleR);
+                }
             }
         }
     });
@@ -123,12 +122,16 @@ function fireIfPossible(id) {
 }
 
 function fire(id) {
-    bullets[id] = new Bullet(50, 5, 15, players[id].angle, players[id].posX, players[id].posY);
+    if(!bullets[id]){
+        bullets[id] = [];
+    }
+    bullets[id].push(new Bullet(50, 5, 15, players[id].angle, players[id].posX, players[id].posY));
 }
 
 function getMouseAngle(movement) {
     let angle = (movement.mouse_angle * 1) % 360;
-    return normalizeAngle(-angle / 360.0 * (2 * Math.PI));
+    // return normalizeAngle(-angle / 360.0 * (2 * Math.PI));
+    return angle;
 }
 
 function normalizeAngle(angle) {
