@@ -13,11 +13,19 @@ dynamcCanvas.height = 800;
 socket.emit("new player");
 
 let movement = {
+    mouse_angle: 0,
+    mouse_down: false,
+    mouse_wheel: 0,
     up: false,
     down: false,
     left: false,
     right: false
 };
+
+let options =
+    {
+        sens: 0.00000001
+    };
 
 document.addEventListener('keydown', (event) => {
     switch (event.keyCode) {
@@ -56,6 +64,38 @@ document.addEventListener('keyup', (event) => {
     console.log("in key up");
 });
 
+
+
+
+function initMouseEvents() {
+    dynamcCanvas.addEventListener("click", function(event)
+    {
+        dynamcCanvas.requestPointerLock();
+    }, false);
+
+    // Mouse handling code
+    // When the mouse is pressed it rotates the players view
+    dynamcCanvas.addEventListener("mouseup", function(event)
+    {
+        movement.mouse_down = false;
+    }, false);
+
+    dynamcCanvas.addEventListener("mousedown", function(event)
+    {
+        movement.mouse_down = true;
+    }, false);
+
+    dynamcCanvas.addEventListener("mousemove", function(event)
+    {
+        if (event.movementX !== undefined)
+            movement.mouse_angle += event.movementX;
+        else
+            movement.mouse_angle = event.pageX;
+    }, false);
+}
+
+initMouseEvents();
+
 setInterval(() => {
     socket.emit("change state", movement);
 }, 1000 / 60);
@@ -63,13 +103,14 @@ setInterval(() => {
 socket.on("render", (state) => {
     console.log("Rendering...")
     dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
+
     function renderPlayers() {
         dynamicContext.fillStyle = "red"
-        for (id in state){
+        for (id in state) {
             let player = state[id];
             //console.log(player.posX, " ", player.posY, " ", player.radius);
             dynamicContext.beginPath();
-            dynamicContext.arc(player.posX, player.posY, player.radius, 0, 1.5 * Math.PI)
+            dynamicContext.arc(player.posX, player.posY, player.radius, player.angle, 1.5 * Math.PI+player.angle)
             dynamicContext.fill()
         }
     }
@@ -93,7 +134,7 @@ socket.on("render static", (map) => {
             let cell = map.cellMatrix[i][j];
             if (cell.isBlock) {
                 staticContext.fillStyle = "black";
-               staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
+                staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
             else {
                 staticContext.fillStyle = "green";

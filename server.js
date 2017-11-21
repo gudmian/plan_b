@@ -41,6 +41,8 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("change state", (data)=>{
+
+        console.log("Mouse angle",getMouseAngle(data))
         let player = players[socket.id] || {};
         if (data.left) {
             player.posX -= 5;
@@ -54,6 +56,9 @@ mainSocket.on("connection", (socket) => {
         if (data.down) {
             player.posY += 5;
         }
+        if (player.angle !== getMouseAngle(data)){
+            player.angle = getMouseAngle(data);
+        }
     });
 
     socket.on("disconnect", ()=>{
@@ -62,6 +67,20 @@ mainSocket.on("connection", (socket) => {
 
 
 });
+
+
+
+function getMouseAngle(movement) {
+    let angle = (movement.mouse_angle * 1) % 360;
+    return normalizeAngle(-angle / 360.0 * (2 * Math.PI));
+}
+
+function normalizeAngle(angle) {
+    let count = (angle / (2 * Math.PI)) | 0;
+    angle = angle - count * 2 * Math.PI;
+    if (angle < 0) angle = 2 * Math.PI + angle;
+    return angle;
+}
 
 
 setInterval(()=>{
