@@ -51,7 +51,7 @@ mainSocket.on("connection", (socket) => {
         let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
         let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
         let topCell = map.getCellByPoint(player.posX, player.posY - 20)
-        let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
+        let bottomCell = map.getCellByPoint(player.posX , player.posY + 15)
 
         if (data.left) {
             if (!player.collideLeft(leftCell)) {
@@ -120,7 +120,7 @@ function fireIfPossible(id) {
 }
 
 function fire(id) {
-    if (!bullets[id]) {
+    if(!bullets[id]){
         bullets[id] = [];
     }
     bullets[id].push(new Bullet(50, 5, 15, players[id].angle, players[id].posX, players[id].posY));
