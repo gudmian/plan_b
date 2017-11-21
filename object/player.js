@@ -1,6 +1,7 @@
 "use strict"
 
-var Weapon = require("../global").constants.WEAPON;
+var Weapon = require("./weapon");
+var wpn = require("../global").constants.WEAPON;
 var Map = require("./map");
 
 class Player {
@@ -11,14 +12,14 @@ class Player {
         this.posX = x;
         this.posY = y;
         this.angle = 0;
+        this.health = 100;
         this.cell = cell;
-        //this.weapon = new Weapon(Weapon.SIMPLE)
-        //weapon.setPlayer(this.id)
+        this.weapon = new Weapon(wpn.SIMPLE);
+        this.weapon.setPlayer(this.id)
     }
 
-    spawnPlayer(){
+    spawn(){
 
-        new Player();
     }
 
     collideLeft(collobj){

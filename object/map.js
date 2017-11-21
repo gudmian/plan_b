@@ -30,17 +30,18 @@ class Map {
 
     //nees replace to Util
     getRandom(x) {
-        return Math.floor(Math.random() * x);
+        return Math.floor(Math.random() * (x - 1 - 1) + 1);
     }
 
     getEmptyCell() {
         var randI = this.getRandom(this.levelSize);
         var rangJ = this.getRandom(this.levelSize);
         if (!this.cellMatrix[randI][rangJ].isBlock) {
-            return this.cellMatrix[randI][rangJ];
+            let cell = this.cellMatrix[randI][rangJ];
+            return cell;
         }
         else {
-            this.getEmptyCell();
+            return this.getEmptyCell();
         }
     }
 
