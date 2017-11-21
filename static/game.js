@@ -105,12 +105,12 @@ socket.on("render", (state) => {
     dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
 
     function renderPlayers() {
-        dynamicContext.fillStyle = "red"
-        for (id in state) {
-            let player = state[id];
-            //console.log(player.posX, " ", player.posY, " ", player.radius);
+        dynamicContext.fillStyle = "red";
+        let players = state.playersInf;
+        for (id in players) {
+            let player = players[id];
             dynamicContext.beginPath();
-            dynamicContext.arc(player.posX, player.posY, player.radius, player.angle, 1.5 * Math.PI+player.angle)
+            dynamicContext.arc(player.posX, player.posY, player.radius, player.angle, 1.5 * Math.PI+player.angle);
             dynamicContext.fill()
         }
     }
@@ -120,14 +120,22 @@ socket.on("render", (state) => {
     }
 
     function renderBullets() {
-
+        dynamicContext.fillStyle = "blue";
+        let bullets = state.bulletsInf;
+        for (id in bullets) {
+            let bullet = bullets[id];
+            dynamicContext.beginPath();
+            dynamicContext.arc(bullet.posX, bullet.posY, 4, 0, 2 * Math.PI);
+            dynamicContext.fill()
+        }
     }
 
     renderPlayers();
+    renderBullets();
 });
 
 socket.on("render static", (map) => {
-    console.log("Rendering static...")
+    console.log("Rendering static...");
     let cellMatrix = map.cellMatrix;
     for (let i = 0; i < map.levelSize; i++) {
         for (let j = 0; j < map.levelSize; j++) {
