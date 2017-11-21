@@ -123,10 +123,11 @@ socket.on("render", (state) => {
         dynamicContext.fillStyle = "blue";
         let bullets = state.bulletsInf;
         for (id in bullets) {
-            let bullet = bullets[id];
-            dynamicContext.beginPath();
-            dynamicContext.arc(bullet.posX, bullet.posY, 4, 0, 2 * Math.PI);
-            dynamicContext.fill()
+            for(let bullet of bullets[id]){
+                dynamicContext.beginPath();
+                dynamicContext.arc(bullet.posX, bullet.posY, bullet.size, 0, 2 * Math.PI);
+                dynamicContext.fill()
+            }
         }
     }
 
