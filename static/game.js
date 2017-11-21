@@ -13,7 +13,8 @@ dynamcCanvas.height = 800;
 socket.emit("new player");
 
 let movement = {
-    mouse_angle: 0,
+    mouse_X: 0,
+    mouse_Y: 0,
     mouse_down: false,
     mouse_wheel: 0,
     up: false,
@@ -83,10 +84,26 @@ function initMouseEvents() {
 
     dynamcCanvas.addEventListener("mousemove", function(event)
     {
-        if (event.movementX !== undefined)
-            movement.mouse_angle += event.movementX;
-        else
-            movement.mouse_angle = event.pageX;
+        //
+        // if (event.movementX !== undefined)
+        //     movement.mouse_X = event.movementX;
+        // else
+        //     movement.mouse_X = event.pageX;
+        // if (event.movementY !== undefined)
+        //     movement.mouse_Y = event.movementY;
+        // else
+        //     movement.mouse_Y = event.pageY;
+        var mouseX, mouseY;
+
+        if(event.offsetX) {
+            movement.mouse_X = event.offsetX;
+            movement.mouse_Y = event.offsetY;
+        }
+        else if(event.layerX) {
+            movement.mouse_X = event.layerX;
+            movement.mouse_Y = event.layerY;
+        }
+
     }, false);
 }
 
@@ -121,7 +138,7 @@ socket.on("render", (state) => {
         for (id in bullets) {
             for(let bullet of bullets[id]){
                 dynamicContext.beginPath();
-                dynamicContext.arc(bullet.posX, bullet.posY, bullet.size, 0, 2 * Math.PI);
+                dynamicContext.arc(bullet.posX, bullet.posY, bullet.radius, 0, 2 * Math.PI);
                 dynamicContext.fill()
             }
         }

@@ -4,9 +4,8 @@ let Player = require("./player");
 let Cell = require("./cell");
 
 class Bullet {
-    constructor(damage, size, velo, angle, posX, posY, owner) {
+    constructor(damage, velo, angle, posX, posY, owner) {
         this.damage = damage;
-        this.size = size;
         this.velo = velo;
         this.angle = angle;
         this.posX = posX;
@@ -45,12 +44,12 @@ class Bullet {
         if ((this.posY + this.radius >= player.posY) && (this.posY <= player.posY + player.radius)) YColl = true;
 
         if (XColl & YColl) {
-            console.log("Bullet is collide wirh player");
-            console.log("Bullet:", this.posX, ",", this.posY, "| Player:", player.posX, ",", player.posY);
+            // console.log("Bullet is collide wirh player");
+            // console.log("Bullet:", this.posX, ",", this.posY, "| Player:", player.posX, ",", player.posY);
             return true;
         }
-        console.log("Bullet is not collide with player");
-        console.log("Bullet:", this.posX, ",", this.posY, "| Player:", player.posX, ",", player.posY);
+        // console.log("Bullet is not collide with player");
+        // console.log("Bullet:", this.posX, ",", this.posY, "| Player:", player.posX, ",", player.posY);
 
         return false;
     }

@@ -40,9 +40,9 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("new player", () => {
-        let x = 300
-        let y = 400
-        let player = new Player(x, y, map.getCellByPoint(x, y));
+        let spawnCell = map.getEmptyCell()
+        console.log("Spawn cell: ", spawnCell.i, " ", spawnCell.j);
+        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
         console.log(player.posX, " ", player.posY, " ", player.radius);
         player.id = socket.id;
         players[socket.id] = player;
@@ -80,8 +80,8 @@ mainSocket.on("connection", (socket) => {
                     player.posY += 5;
                 }
             }
-            if (player.angle !== getMouseAngle(data)) {
-                player.angle = getMouseAngle(data);
+            if (player.angle !== getMouseAngle(data, socket.id)) {
+                player.angle = getMouseAngle(data, socket.id);
             }
             if (data.mouse_down) {
                 fireIfPossible(socket.id);
@@ -92,8 +92,9 @@ mainSocket.on("connection", (socket) => {
                     let currentAngleR = currentAngle * (Math.PI / 180);
                     let intervals = 5;
                     for (let step = 0; step < intervals; step++) {
-                        let xFactor = bullet.velo * Math.cos(currentAngleR) / (intervals - step);
-                        let yFactor = bullet.velo * Math.sin(currentAngleR) / (intervals - step);
+                        //if(bullet === undefined || bullet === null) break;
+                        let xFactor = bullet.velo * Math.cos(currentAngle) / (intervals);      //WRONG!!!
+                        let yFactor = bullet.velo * Math.sin(currentAngle) / (intervals);
                         bullet.posX += xFactor;
                         bullet.posY += yFactor;
                         let cell = map.getCellByPoint(bullet.posX, bullet.posY);
@@ -106,7 +107,16 @@ mainSocket.on("connection", (socket) => {
                                 if (bullet.collideWithPlayer(players[id])) {
                                     console.log("Bullet collide with player");
                                     buletDead(ids, bullet);
-                                    delete players[id];
+                                    players[id].health -= bullet.damage;
+                                    console.log("Player ", id, " health ",players[id].health );
+                                    if(players[id].health <= 0){
+                                        // setInterval(()=>{
+                                            let spawnCell = map.getEmptyCell()
+                                            let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+                                            players[id] = player;
+                                        // }, 2000);
+                                    }
+                                    // delete players[id];
                                 }
                             }
                         }
@@ -131,22 +141,25 @@ function buletDead(id, bullet) {
 }
 
 
+// let nextFire=0;
 
 function fireIfPossible(id) {
     let nextFire;
+    let wpnFreq = players[id].weapon.frequency;
     if (nextFire) {
         if (nextFire < Date.now()) {
             fire(id);
-            nextFire = Date.now() + 1000;
+            nextFire = Date.now() + wpnFreq;
         }
     } else {
         fire(id);
-        nextFire = Date.now() + 1000;
+        nextFire = Date.now() + wpnFreq;
     }
 }
 
-function respawnPlayer(x, y) {
-    return new Player(x, y, map.getCellByPoint(x, y));
+function respawnPlayer() {
+    let spawnCell = map.getEmptyCell()
+    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
 }
 
 function fire(id) {
@@ -154,17 +167,35 @@ function fire(id) {
         bullets[id] = [];
     }
     if (players[id]) {
-        let currentAngle = players[id].angle * (Math.PI / 180);
+        let currentAngle = players[id].angle;
+        console.log("Angle:", currentAngle);
         let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
+
         let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
-        bullets[id].push(new Bullet(50, 5, 10, currentAngle * (180 / Math.PI), bulletX, bulletY, id));
+        console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
+        bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id));
     }
 }
 
-function getMouseAngle(movement) {
-    let angle = (movement.mouse_angle * 1) % 360;
+function getMouseAngle(movement, socketId) {
+    let player = players[socketId];
+    let x = 0;
+    let y = 0;
+    if (player !== undefined){
+        x = player.posX;
+        y = player.posY;
+    }
+    //console.log("Mouse pos:", movement.mouse_X, "", movement.mouse_Y);
+    let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
+    //нужно откорректировать по четвертям чтобы избавиться от перескока
+    if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0){
+        angle += 2*Math.acos(0)
+    }
+    if ((movement.mouse_Y - y) > 0 && (movement.mouse_X - x) < 0){
+        angle += 2*Math.acos(0)
+    }
     // return normalizeAngle(-angle / 360.0 * (2 * Math.PI));
-    return angle;
+        return angle;
 }
 
 function normalizeAngle(angle) {

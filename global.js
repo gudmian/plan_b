@@ -36,9 +36,9 @@ module.exports.constants = {
 
             wpn_desc :
                 [
-                    {vel: 10,     frequency: 100,   damage: 5,   patrons: 100,   name: "simple", },
+                    {vel: 10,     frequency: 500,   damage: 5,   patrons: 100,   name: "simple", },
                     {vel: 7,      frequency: 300,   damage: 10,  patrons: 50,    name: "medium", },
-                    {vel: 5,      frequency: 500,   damage: 20,  patrons: 20,    name: "strong", },
+                    {vel: 5,      frequency: 700,   damage: 20,  patrons: 20,    name: "strong", },
 
                 ]
         },
