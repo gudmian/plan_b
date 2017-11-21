@@ -53,64 +53,69 @@ mainSocket.on("connection", (socket) => {
 
         let player = players[socket.id] || {};
 
-        let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
-        let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
-        let topCell = map.getCellByPoint(player.posX, player.posY - 20)
-        let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
+        if (player !== {}) {
 
-        if (data.left) {
-            if (!player.collideLeft(leftCell)) {
-                player.posX -= 5;
+            let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
+            let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
+            let topCell = map.getCellByPoint(player.posX, player.posY - 20)
+            let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
+
+            if (data.left) {
+                if (!player.collideLeft(leftCell)) {
+                    player.posX -= 5;
+                }
             }
-        }
-        if (data.up) {
-            if (!player.collideTop(topCell)) {
-                player.posY -= 5;
+            if (data.up) {
+                if (!player.collideTop(topCell)) {
+                    player.posY -= 5;
+                }
             }
-        }
-        if (data.right) {
-            if (!player.collideRight(rightCell)) {
-                player.posX += 5;
+            if (data.right) {
+                if (!player.collideRight(rightCell)) {
+                    player.posX += 5;
+                }
             }
-        }
-        if (data.down) {
-            if (!player.collideBottom(bottomCell)) {
-                player.posY += 5;
+            if (data.down) {
+                if (!player.collideBottom(bottomCell)) {
+                    player.posY += 5;
+                }
             }
-        }
-        if (player.angle !== getMouseAngle(data)) {
-            player.angle = getMouseAngle(data);
-        }
-        if (data.mouse_down) {
-            fireIfPossible(socket.id);
-        }
-        for (let ids in bullets) {
-            for (var bullet of bullets[ids]) {
-                let currentAngle = bullet.angle;
-                let currentAngleR = currentAngle * (Math.PI / 180);
-                let intervals = 5;
-                for (let step = 0; step < intervals; step++) {
-                //if(bullet === undefined || bullet === null) break;
-                let xFactor = bullet.velo * Math.cos(currentAngleR) / (intervals - step);
-                let yFactor = bullet.velo * Math.sin(currentAngleR) / (intervals - step);
-                bullet.posX += xFactor;
-                bullet.posY += yFactor;
-                let cell = map.getCellByPoint(bullet.posX, bullet.posY);
-                if (cell && cell.isBlock) {
-                    console.log("Bullet collide with wall");
-                    buletDead(ids, bullet);
-                } else {
-                    for (let id in players) {
-                        if(bullet.owner === id) continue;
-                        if (bullet.collideWithPlayer(players[id])) {
-                            console.log("Bullet collide with player");
+            if (player.angle !== getMouseAngle(data)) {
+                player.angle = getMouseAngle(data);
+            }
+            if (data.mouse_down) {
+                fireIfPossible(socket.id);
+            }
+            for (let ids in bullets) {
+                for (var bullet of bullets[ids]) {
+                    let currentAngle = bullet.angle;
+                    let currentAngleR = currentAngle * (Math.PI / 180);
+                    let intervals = 5;
+                    for (let step = 0; step < intervals; step++) {
+                        //if(bullet === undefined || bullet === null) break;
+                        let xFactor = bullet.velo * Math.cos(currentAngleR) / (intervals - step);
+                        let yFactor = bullet.velo * Math.sin(currentAngleR) / (intervals - step);
+                        bullet.posX += xFactor;
+                        bullet.posY += yFactor;
+                        let cell = map.getCellByPoint(bullet.posX, bullet.posY);
+                        if (cell && cell.isBlock) {
+                            console.log("Bullet collide with wall");
                             buletDead(ids, bullet);
-                            delete players[id];
+                        } else {
+                            for (let id in players) {
+                                if (bullet.owner === id) continue;
+                                if (bullet.collideWithPlayer(players[id])) {
+                                    console.log("Bullet collide with player");
+                                    buletDead(ids, bullet);
+                                    delete players[id];
+                                }
+                            }
                         }
                     }
                 }
-                }
             }
+        } else {
+            players[socket.id] = respawnPlayer(x, y);
         }
     });
 
@@ -126,10 +131,11 @@ function buletDead(id, bullet) {
     bullets[id].splice(bulletIndex, 1);
 }
 
-let nextFire = 0;
+
 
 function fireIfPossible(id) {
-    if (nextFire !== 0) {
+    let nextFire;
+    if (nextFire) {
         if (nextFire < Date.now()) {
             fire(id);
             nextFire = Date.now() + 1000;
@@ -140,14 +146,20 @@ function fireIfPossible(id) {
     }
 }
 
+function respawnPlayer(x, y) {
+    return new Player(x, y, map.getCellByPoint(x, y));
+}
+
 function fire(id) {
     if (!bullets[id]) {
         bullets[id] = [];
     }
-    let currentAngle = players[id].angle * (Math.PI / 180);
-    let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
-    let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
-    bullets[id].push(new Bullet(50, 5, 10, currentAngle*(180/Math.PI), bulletX, bulletY, id));
+    if (players[id]) {
+        let currentAngle = players[id].angle * (Math.PI / 180);
+        let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
+        let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
+        bullets[id].push(new Bullet(50, 5, 10, currentAngle * (180 / Math.PI), bulletX, bulletY, id));
+    }
 }
 
 function getMouseAngle(movement) {
