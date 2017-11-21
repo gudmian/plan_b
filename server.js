@@ -34,7 +34,9 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("new player", () => {
-        let player = new Player(300, 200);
+        let x = 300
+        let y = 400
+        let player = new Player(x, y, map.getCellByPoint(x, y));
         console.log(player.posX, " ", player.posY, " ", player.radius);
         player.id = socket.id;
         players[socket.id] = player;
@@ -45,17 +47,31 @@ mainSocket.on("connection", (socket) => {
 
         console.log("Mouse angle", getMouseAngle(data))
         let player = players[socket.id] || {};
+
+        let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
+        let rightCell = map.getCellByPoint(player.posX + 20, player.posY)
+        let topCell = map.getCellByPoint(player.posX, player.posY - 20)
+        let bottomCell = map.getCellByPoint(player.posX , player.posY + 20)
+
         if (data.left) {
-            player.posX -= 5;
+            if (!player.collideLeft(leftCell)) {
+                player.posX -= 5;
+            }
         }
         if (data.up) {
-            player.posY -= 5;
+            if (!player.collideTop(topCell)){
+                player.posY -= 5;
+            }
         }
         if (data.right) {
-            player.posX += 5;
+            if (!player.collideRight(rightCell)){
+                player.posX += 5;
+            }
         }
         if (data.down) {
-            player.posY += 5;
+            if(!player.collideBottom(bottomCell)){
+                player.posY += 5;
+            }
         }
         if (player.angle !== getMouseAngle(data)) {
             player.angle = getMouseAngle(data);

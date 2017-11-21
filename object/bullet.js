@@ -8,6 +8,7 @@ class Bullet{
         this.angle = angle;
         this.posX = posX;
         this.posY = posY;
+        this.radius = 2 /*px*/;
     }
 }
 
