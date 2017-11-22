@@ -169,6 +169,7 @@ function isCollideWithOther(player) {
 }
 
 function fireIfPossible(id) {
+    if (players[id] === undefined) return;
     let wpn = players[id].weapon;
     if(wpn.lastFire === 0){
         wpn.lastFire = Date.now();
