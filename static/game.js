@@ -2,14 +2,13 @@
 
 let socket = io();
 const staticCanvas = document.getElementById("layer1");
-const dynamicCanvas = document.getElementById("layer2");
-let currentWidth = document.getElementById("layer1").width;
+const dynamcCanvas = document.getElementById("layer2")
 let staticContext = staticCanvas.getContext("2d");
-let dynamicContext = dynamicCanvas.getContext("2d");
+let dynamicContext = dynamcCanvas.getContext("2d");
 staticCanvas.width = 800;
-dynamicCanvas.width = 800;
+dynamcCanvas.width = 800;
 staticCanvas.height = 800;
-dynamicCanvas.height = 800;
+dynamcCanvas.height = 800;
 
 socket.emit("new player");
 
@@ -68,27 +67,36 @@ document.addEventListener('keyup', (event) => {
 function initMouseEvents() {
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
-    dynamicCanvas.addEventListener("mouseup", function(event)
+    dynamcCanvas.addEventListener("mouseup", function(event)
     {
         movement.mouse_down = false;
     }, false);
 
-    dynamicCanvas.addEventListener("mousedown", function(event)
+    dynamcCanvas.addEventListener("mousedown", function(event)
     {
         movement.mouse_down = true;
     }, false);
 
-    dynamicCanvas.addEventListener("mousemove", function(event)
+    dynamcCanvas.addEventListener("mousemove", function(event)
     {
+        //
+        // if (event.movementX !== undefined)
+        //     movement.mouse_X = event.movementX;
+        // else
+        //     movement.mouse_X = event.pageX;
+        // if (event.movementY !== undefined)
+        //     movement.mouse_Y = event.movementY;
+        // else
+        //     movement.mouse_Y = event.pageY;
         var mouseX, mouseY;
 
         if(event.offsetX) {
-            movement.mouse_X = event.offsetX * staticCanvas.width/currentWidth;
-            movement.mouse_Y = event.offsetY * staticCanvas.width/currentWidth;
+            movement.mouse_X = event.offsetX;
+            movement.mouse_Y = event.offsetY;
         }
         else if(event.layerX) {
-            movement.mouse_X = event.layerX * staticCanvas.width/currentWidth;
-            movement.mouse_Y = event.layerY * staticCanvas.width/currentWidth;
+            movement.mouse_X = event.layerX;
+            movement.mouse_Y = event.layerY;
         }
 
     }, false);
@@ -98,15 +106,15 @@ initMouseEvents();
 
 setInterval(() => {
     socket.emit("change state", movement);
-}, 1000 / 60);
+}, 1000/60);
 
 socket.on("render", (state) => {
     console.log("Rendering...")
-    dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height)
+    dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
 	var TO_RADIANS = Math.PI/180;
 
     function renderPlayers() {
-        dynamicContext.fillStyle = "red";
+        //dynamicContext.fillStyle = "red";
         let players = state.playersInf;
 		tex_player = new Image;
 		tex_player.src = "static/textures/players/apier.png";
@@ -149,10 +157,6 @@ socket.on("render", (state) => {
 socket.on("render static", (map) => {
     console.log("Rendering static...");
     let cellMatrix = map.cellMatrix;
-    dynamicCanvas.width = map.size * map.cellMatrix[0][0].size;
-    staticCanvas.width = map.size * map.cellMatrix[0][0].size;
-    dynamicCanvas.height = dynamicCanvas.width;
-    staticCanvas.height = staticCanvas.width;
     for (let i = 0; i < map.levelSize; i++) {
         for (let j = 0; j < map.levelSize; j++) {
             let cell = map.cellMatrix[i][j];

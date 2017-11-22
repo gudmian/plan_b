@@ -162,6 +162,7 @@ function isCollideWithOther(player) {
     return false
 }
 
+// let nextFire=0;
 
 function fireIfPossible(id) {
     // let nextFire;
@@ -206,7 +207,6 @@ function getMouseAngle(movement, socketId) {
         x = player.posX;
         y = player.posY;
     }
-    // console.log("Coursor position: ", movement.mouse_X, " ", movement.mouse_Y);
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
     if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0) {
         angle += 2 * Math.acos(0)
