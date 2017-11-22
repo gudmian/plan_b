@@ -2,13 +2,15 @@
 
 let socket = io();
 const staticCanvas = document.getElementById("layer1");
-const dynamcCanvas = document.getElementById("layer2")
+const dynamicCanvas = document.getElementById("layer2");
+let currentHeight = document.getElementById("layer1").offsetHeight;
+console.log("height = ", currentHeight);
 let staticContext = staticCanvas.getContext("2d");
-let dynamicContext = dynamcCanvas.getContext("2d");
+let dynamicContext = dynamicCanvas.getContext("2d");
 staticCanvas.width = 800;
-dynamcCanvas.width = 800;
+dynamicCanvas.width = 800;
 staticCanvas.height = 800;
-dynamcCanvas.height = 800;
+dynamicCanvas.height = 800;
 
 socket.emit("new player");
 
@@ -67,36 +69,25 @@ document.addEventListener('keyup', (event) => {
 function initMouseEvents() {
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
-    dynamcCanvas.addEventListener("mouseup", function(event)
+    dynamicCanvas.addEventListener("mouseup", function(event)
     {
         movement.mouse_down = false;
     }, false);
 
-    dynamcCanvas.addEventListener("mousedown", function(event)
+    dynamicCanvas.addEventListener("mousedown", function(event)
     {
         movement.mouse_down = true;
     }, false);
 
-    dynamcCanvas.addEventListener("mousemove", function(event)
+    dynamicCanvas.addEventListener("mousemove", function(event)
     {
-        //
-        // if (event.movementX !== undefined)
-        //     movement.mouse_X = event.movementX;
-        // else
-        //     movement.mouse_X = event.pageX;
-        // if (event.movementY !== undefined)
-        //     movement.mouse_Y = event.movementY;
-        // else
-        //     movement.mouse_Y = event.pageY;
-        var mouseX, mouseY;
-
         if(event.offsetX) {
-            movement.mouse_X = event.offsetX;
-            movement.mouse_Y = event.offsetY;
+            movement.mouse_X = event.offsetX * staticCanvas.width/currentHeight;
+            movement.mouse_Y = event.offsetY * staticCanvas.height/currentHeight;
         }
         else if(event.layerX) {
-            movement.mouse_X = event.layerX;
-            movement.mouse_Y = event.layerY;
+            movement.mouse_X = event.layerX * staticCanvas.width/currentHeight;
+            movement.mouse_Y = event.layerY * staticCanvas.height/currentHeight;
         }
 
     }, false);
@@ -110,7 +101,7 @@ setInterval(() => {
 
 socket.on("render", (state) => {
     console.log("Rendering...")
-    dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
+    dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height)
 	var TO_RADIANS = Math.PI/180;
 
     function renderPlayers() {
