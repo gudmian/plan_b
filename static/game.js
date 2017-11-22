@@ -2,7 +2,7 @@
 
 let socket = io();
 const staticCanvas = document.getElementById("layer1");
-const dynamcCanvas = document.getElementById("layer2")
+const dynamcCanvas = document.getElementById("layer2");
 let staticContext = staticCanvas.getContext("2d");
 let dynamicContext = dynamcCanvas.getContext("2d");
 staticCanvas.width = 800;
@@ -121,6 +121,11 @@ socket.on("render", (state) => {
 		tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
+                if (socket.id == id) {
+					dynamicContext.fillStyle = "#00F";
+					dynamicContext.font = "italic 10pt Arial";
+					dynamicContext.fillText(player.health, player.posX-15, player.posY-20);
+                }
 				let dx = player.posX;
 				let dy = player.posY;
                 dynamicContext.save();
