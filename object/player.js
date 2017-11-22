@@ -66,6 +66,23 @@ class Player {
             }
         }
     }
+
+    collidePlayer(player){
+        var XColl = false;
+        var YColl = false;
+        if ((this.posX + this.radius >= player.posX) && (this.posX <= player.posX + player.radius)) XColl = true;
+        if ((this.posY + this.radius >= player.posY) && (this.posY <= player.posY + player.radius)) YColl = true;
+
+        if (XColl & YColl) {
+            // console.log("Bullet is collide wirh player");
+            // console.log("Bullet:", this.posX, ",", this.posY, "| Player:", player.posX, ",", player.posY);
+            return true;
+        }
+        // console.log("Bullet is not collide with player");
+        // console.log("Bullet:", this.posX, ",", this.posY, "| Player:", player.posX, ",", player.posY);
+
+        return false;
+    }
 }
 
 module.exports = Player;

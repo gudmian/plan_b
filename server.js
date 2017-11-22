@@ -63,21 +63,33 @@ mainSocket.on("connection", (socket) => {
             if (data.left) {
                 if (!player.collideLeft(leftCell)) {
                     player.posX -= 5;
+                    if (isCollideWithOther(player)) {
+                        player.posX +=5
+                    }
                 }
             }
             if (data.up) {
                 if (!player.collideTop(topCell)) {
-                    player.posY -= 5;
+                        player.posY -= 5;
+                    if (isCollideWithOther(player)) {
+                        player.posY +=5
+                    }
                 }
             }
             if (data.right) {
                 if (!player.collideRight(rightCell)) {
-                    player.posX += 5;
+                        player.posX += 5;
+                    if (isCollideWithOther(player)) {
+                        player.posX -=5
+                    }
                 }
             }
             if (data.down) {
                 if (!player.collideBottom(bottomCell)) {
-                    player.posY += 5;
+                        player.posY += 5;
+                    if (isCollideWithOther(player)) {
+                        player.posY -=5
+                    }
                 }
             }
             if (player.angle !== getMouseAngle(data, socket.id)) {
@@ -108,12 +120,12 @@ mainSocket.on("connection", (socket) => {
                                     console.log("Bullet collide with player");
                                     buletDead(ids, bullet);
                                     players[id].health -= bullet.damage;
-                                    console.log("Player ", id, " health ",players[id].health );
-                                    if(players[id].health <= 0){
+                                    console.log("Player ", id, " health ", players[id].health);
+                                    if (players[id].health <= 0) {
                                         // setInterval(()=>{
-                                            let spawnCell = map.getEmptyCell()
-                                            let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
-                                            players[id] = player;
+                                        let spawnCell = map.getEmptyCell()
+                                        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+                                        players[id] = player;
                                         // }, 2000);
                                     }
                                     // delete players[id];
@@ -140,21 +152,31 @@ function buletDead(id, bullet) {
     bullets[id].splice(bulletIndex, 1);
 }
 
+function isCollideWithOther(player) {
+    for (let other in players) {
+        if (player.id === other) continue;
+        if (player.collidePlayer(players[other])) {
+            return true;
+        }
+    }
+    return false
+}
 
 // let nextFire=0;
 
 function fireIfPossible(id) {
-    let nextFire;
-    let wpnFreq = players[id].weapon.frequency;
-    if (nextFire) {
-        if (nextFire < Date.now()) {
-            fire(id);
-            nextFire = Date.now() + wpnFreq;
-        }
-    } else {
-        fire(id);
-        nextFire = Date.now() + wpnFreq;
-    }
+    // let nextFire;
+    // let wpnFreq = players[id].weapon.frequency;
+    // if (nextFire) {
+    //     if (nextFire < Date.now()) {
+    //         fire(id);
+    //         nextFire = Date.now() + wpnFreq;
+    //     }
+    // } else {
+    //     fire(id);
+    //     nextFire = Date.now() + wpnFreq;
+    // }
+    fire(id);
 }
 
 function respawnPlayer() {
@@ -181,18 +203,18 @@ function getMouseAngle(movement, socketId) {
     let player = players[socketId];
     let x = 0;
     let y = 0;
-    if (player !== undefined){
+    if (player !== undefined) {
         x = player.posX;
         y = player.posY;
     }
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
-    if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0){
-        angle += 2*Math.acos(0)
+    if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0) {
+        angle += 2 * Math.acos(0)
     }
-    if ((movement.mouse_Y - y) > 0 && (movement.mouse_X - x) < 0){
-        angle += 2*Math.acos(0)
+    if ((movement.mouse_Y - y) > 0 && (movement.mouse_X - x) < 0) {
+        angle += 2 * Math.acos(0)
     }
-        return angle;
+    return angle;
 }
 
 function normalizeAngle(angle) {
@@ -205,7 +227,7 @@ function normalizeAngle(angle) {
 
 setInterval(() => {
     mainSocket.sockets.emit("render", renderData);
-}, 1000/60);
+}, 1000 / 60);
 
 
 server.listen(8080, () => {
