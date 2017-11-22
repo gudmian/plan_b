@@ -42,9 +42,9 @@ mainSocket.on("connection", (socket) => {
     socket.on("new player", () => {
         let spawnCell = map.getEmptyCell()
         console.log("Spawn cell: ", spawnCell.i, " ", spawnCell.j);
-        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id);
         console.log(player.posX, " ", player.posY, " ", player.radius);
-        player.id = socket.id;
+        // player.id = socket.id;
         players[socket.id] = player;
         socket.emit("render static", map);
     });
@@ -54,7 +54,6 @@ mainSocket.on("connection", (socket) => {
         let player = players[socket.id] || {};
 
         if (player !== {}) {
-
             let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
             let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
             let topCell = map.getCellByPoint(player.posX, player.posY - 20)
@@ -123,9 +122,7 @@ mainSocket.on("connection", (socket) => {
                                     console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
                                         // setInterval(()=>{
-                                        let spawnCell = map.getEmptyCell()
-                                        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
-                                        players[id] = player;
+                                        players[id] = respawnPlayer(id);
                                         // }, 2000);
                                     }
                                     // delete players[id];
@@ -136,7 +133,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
-            players[socket.id] = respawnPlayer(x, y);
+            players[socket.id] = respawnPlayer(socket.id);
         }
     });
 
@@ -179,9 +176,9 @@ function fireIfPossible(id) {
     fire(id);
 }
 
-function respawnPlayer() {
+function respawnPlayer(id) {
     let spawnCell = map.getEmptyCell()
-    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id);
 }
 
 function fire(id) {
