@@ -33,7 +33,16 @@ let renderData = {
     powerupInf: pwrups
 };
 
+for(let player in players){
+    delete players[player]
+}
+
 mainSocket.on("connection", (socket) => {
+
+console.log(players);
+console.log(players.length);
+console.log("Connected socket with id:", socket.id);
+
     if (!map) {
         map = new Map(1);
     }
@@ -57,7 +66,7 @@ mainSocket.on("connection", (socket) => {
 
         let player = players[socket.id] || {};
 
-        if (player !== {}) {
+        if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
             let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
             let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
             let topCell = map.getCellByPoint(player.posX, player.posY - 20)
@@ -67,7 +76,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideLeft(leftCell)) {
                     player.posX -= player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posX += player.velocity;
+                        player.posX += player.velocity+1;
                     }
                 }
             }
@@ -75,7 +84,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideTop(topCell)) {
                     player.posY -= player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posY += player.velocity;
+                        player.posY += player.velocity+1;
                     }
                 }
             }
@@ -83,7 +92,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideRight(rightCell)) {
                     player.posX += player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posX -= player.velocity;
+                        player.posX -= player.velocity-1;
                     }
                 }
             }
@@ -91,7 +100,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideBottom(bottomCell)) {
                     player.posY += player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posY -= player.velocity;
+                        player.posY -= player.velocity-1;
                     }
                 }
             }
@@ -152,6 +161,7 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
+        socket.disable()
         delete players[socket.id];
     });
 
@@ -179,6 +189,7 @@ function isCollideWithOther(player) {
     for (let other in players) {
         if (player.id === other) continue;
         if (player.collidePlayer(players[other])) {
+            console.log("Collide with player", other);
             return true;
         }
     }

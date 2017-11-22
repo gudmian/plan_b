@@ -25,42 +25,46 @@ let movement = {
     right: false
 };
 
-document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen ||      document.mozCancelFullScreen;
+document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen;
+
 function onFullScreenEnter() {
-	console.log("Enter fullscreen initiated from iframe");
+    console.log("Enter fullscreen initiated from iframe");
 };
+
 function onFullScreenExit() {
-	console.log("Exit fullscreen initiated from iframe");
+    console.log("Exit fullscreen initiated from iframe");
 };
+
 // Note: FF nightly needs about:config full-screen-api.enabled set to true.
 function enterFullscreen(id) {
-	onFullScreenEnter(id);
-	var el =  document.getElementById(id);
-	el.style.position = "static";
-	el.style.height = window.height;
-	var onfullscreenchange =  function(e){
-		var fullscreenElement = document.fullscreenElement || document.mozFullscreenElement || document.webkitFullscreenElement;
-		var fullscreenEnabled = document.fullscreenEnabled || document.mozFullscreenEnabled || document.webkitFullscreenEnabled;
-		console.log( 'fullscreenEnabled = ' + fullscreenEnabled, ',  fullscreenElement = ', fullscreenElement, ',  e = ', e);
-	}
-	el.addEventListener("webkitfullscreenchange", onfullscreenchange);
-	el.addEventListener("mozfullscreenchange",     onfullscreenchange);
-	el.addEventListener("fullscreenchange",             onfullscreenchange);
-	if (el.webkitRequestFullScreen) {
-		el.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-	} else {
-		el.mozRequestFullScreen();
-	}
-	document.querySelector('#'+id + ' button').onclick = function(){
-		exitFullscreen(id);
-	}
+    onFullScreenEnter(id);
+    var el = document.getElementById(id);
+    el.style.position = "static";
+    el.style.height = window.height;
+    var onfullscreenchange = function (e) {
+        var fullscreenElement = document.fullscreenElement || document.mozFullscreenElement || document.webkitFullscreenElement;
+        var fullscreenEnabled = document.fullscreenEnabled || document.mozFullscreenEnabled || document.webkitFullscreenEnabled;
+        console.log('fullscreenEnabled = ' + fullscreenEnabled, ',  fullscreenElement = ', fullscreenElement, ',  e = ', e);
+    }
+    el.addEventListener("webkitfullscreenchange", onfullscreenchange);
+    el.addEventListener("mozfullscreenchange", onfullscreenchange);
+    el.addEventListener("fullscreenchange", onfullscreenchange);
+    if (el.webkitRequestFullScreen) {
+        el.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+    } else {
+        el.mozRequestFullScreen();
+    }
+    document.querySelector('#' + id + ' button').onclick = function () {
+        exitFullscreen(id);
+    }
 }
+
 function exitFullscreen(id) {
-	onFullScreenExit(id);
-	document.cancelFullScreen();
-	document.querySelector('#'+id + ' button').onclick = function(){
-		enterFullscreen(id);
-	}
+    onFullScreenExit(id);
+    document.cancelFullScreen();
+    document.querySelector('#' + id + ' button').onclick = function () {
+        enterFullscreen(id);
+    }
 }
 
 document.addEventListener('keydown', (event) => {
@@ -104,6 +108,12 @@ document.addEventListener('keyup', (event) => {
 function initMouseEvents() {
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
+
+    // dynamicCanvas.addEventListener("click", function(event)
+    // {
+    //     dynamicCanvas.requestPointerLock();
+    // }, false);
+
     dynamicCanvas.addEventListener("mouseup", function (event) {
         movement.mouse_down = false;
     }, false);
@@ -144,12 +154,16 @@ socket.on("render", (state) => {
         tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
-                if (socket.id == id) {
-					if (player.health<30) {dynamicContext.fillStyle = "red";}
-					else {dynamicContext.fillStyle = "#00F";}
-					dynamicContext.font = "italic 10pt Arial";
-					dynamicContext.fillText(player.health, player.posX-15, player.posY-20);
+
+                if (player.health < 30) {
+                    dynamicContext.fillStyle = "red";
                 }
+                else {
+                    dynamicContext.fillStyle = "#00F";
+                }
+                dynamicContext.font = "italic 10pt Arial";
+                dynamicContext.fillText(player.health, player.posX - 15, player.posY - 20);
+
                 let dx = player.posX;
                 let dy = player.posY;
                 dynamicContext.save();
