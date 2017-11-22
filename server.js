@@ -7,6 +7,7 @@ let socketIo = require("socket.io");
 let Player = require("./object/player");
 let Map = require("./object/map");
 let Bullet = require("./object/bullet");
+let Powerup = require("./object/powerup");
 
 const app = express();
 const server = http.Server(app);
@@ -22,13 +23,14 @@ app.get("/", (req, res) => {
 
 let players = {};
 let bullets = {};
-let items = {};
+let pwrups = [];
 
 let map = null;
 
 let renderData = {
     playersInf: players,
-    bulletsInf: bullets
+    bulletsInf: bullets,
+    powerupInf: pwrups
 };
 
 mainSocket.on("connection", (socket) => {
@@ -40,14 +42,16 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("new player", () => {
-        let spawnCell = map.getEmptyCell()
+        let spawnCell = map.getEmptyCell();
         console.log("Spawn cell: ", spawnCell.i, " ", spawnCell.j);
         let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id);
         console.log(player.posX, " ", player.posY, " ", player.radius);
         // player.id = socket.id;
         players[socket.id] = player;
+        createPowerup(socket.id);
         socket.emit("render static", map);
     });
+
 
     socket.on("change state", (data) => {
 
@@ -61,33 +65,33 @@ mainSocket.on("connection", (socket) => {
 
             if (data.left) {
                 if (!player.collideLeft(leftCell)) {
-                    player.posX -= 5;
+                    player.posX -= player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posX += 5
+                        player.posX += player.velocity;
                     }
                 }
             }
             if (data.up) {
                 if (!player.collideTop(topCell)) {
-                    player.posY -= 5;
+                    player.posY -= player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posY += 5
+                        player.posY += player.velocity;
                     }
                 }
             }
             if (data.right) {
                 if (!player.collideRight(rightCell)) {
-                    player.posX += 5;
+                    player.posX += player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posX -= 5
+                        player.posX -= player.velocity;
                     }
                 }
             }
             if (data.down) {
                 if (!player.collideBottom(bottomCell)) {
-                    player.posY += 5;
+                    player.posY += player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posY -= 5
+                        player.posY -= player.velocity;
                     }
                 }
             }
@@ -113,28 +117,32 @@ mainSocket.on("connection", (socket) => {
                         // console.log("Bullets ", bullets, " id", bullets[bulletId]);
                         if (cell && cell.isBlock) {
                             // console.log("Bullet collide with wall");
-                            buletDead(bulletId, bullet);
+                            bulletDead(bulletId, bullet);
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
-                                if (bullet.collideWithPlayer(players[id])) {
-                                    buletDead(bulletId, bullet);
+                                if (bullet.collideWithPlayer(players[id]) && !players[id].isShield) {
+                                    bulletDead(bulletId, bullet);
                                     players[id].health -= bullet.damage;
                                     // console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
-                                        // setInterval(()=>{
-                                        players[id] = respawnPlayer(id);
+                                        // setTimeout(() => {
+                                            players[id] = respawnPlayer(id);
                                         // }, 2000);
-                                       // delete players[id];
-                                       // setTimeout(() => {
-                                            let spawnCell = map.getEmptyCell()
-                                            let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
-                                            players[id] = player;
-                                       // }, 2000);
                                     }
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            for (let pwrup of pwrups) {
+                let index = pwrups.indexOf(pwrup);
+                if (pwrup.isCollideWithPlayer(player)) {
+                    player.setPower(pwrup);
+                    if (index>-1){
+                        pwrups.splice(index,1);
                     }
                 }
             }
@@ -150,7 +158,16 @@ mainSocket.on("connection", (socket) => {
 
 });
 
-function buletDead(id, bullet) {
+function createPowerup(id) {
+    setInterval(() => {
+        let spawnCell = map.getEmptyCell();
+        let type = Math.floor(Math.random() * (7 - 1) + 1);;   //от 1 до 7 см. global.js
+        pwrups.push(new Powerup(type, spawnCell));
+    }, 20000);
+};
+
+
+function bulletDead(id, bullet) {
     let bulletIndex = bullets[id].indexOf(bullet);
     if (bulletIndex > -1) {
         // console.log("Kill bullet ", bulletIndex)
@@ -171,14 +188,18 @@ function isCollideWithOther(player) {
 function fireIfPossible(id) {
     if (players[id] === undefined) return;
     let wpn = players[id].weapon;
-    if(wpn.lastFire === 0){
-        wpn.lastFire = Date.now();
-        fire(id);
-    }
-    else{
-        if ((wpn.lastFire + wpn.frequency) < Date.now()){
+    if (wpn.patrons > 0) {
+        if (wpn.lastFire === 0) {
             wpn.lastFire = Date.now();
+            wpn.patrons -= 1;
             fire(id);
+        }
+        else {
+            if ((wpn.lastFire + wpn.frequency) < Date.now()) {
+                wpn.lastFire = Date.now();
+                wpn.patrons -= 1;
+                fire(id);
+            }
         }
     }
 }
@@ -196,7 +217,6 @@ function fire(id) {
         let currentAngle = players[id].angle;
         // console.log("Angle:", currentAngle);
         let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
-
         let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
         // console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
         bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, players[id].weapon.owner));
@@ -234,6 +254,9 @@ setInterval(() => {
     mainSocket.sockets.emit("render", renderData);
 }, 1000 / 60);
 
+setInterval(() => {
+    mainSocket.emit("create pwrup");
+}, 200000)
 
 server.listen(8080, () => {
     console.log("Server run on port:", 8080);

@@ -94,7 +94,7 @@ class Player {
             this.setSimpleWeapon();
             return;
         }
-        this.weapon = weapon;
+        this.weapon = new Weapon(weapon);
         this.weapon.setPlayer(this.id)
     }
 
@@ -113,15 +113,31 @@ class Player {
     }
 
     usePowerUp() {
-        switch (this.powerup) {
-            case pwr.HEALTH:
-                if (this.health === 100) {
+        switch (this.powerup.type) {
+            case wpn.MEDIUM:
+                this.setCustomWeapon(wpn.MEDIUM);
+                break;
+            case wpn.STRONG:
+                this.setCustomWeapon(wpn.STRONG);
+                break;
+            case pwr.PATRONS:
+                let weapon = this.weapon;
+                if(weapon.patrons === wpn.wpn_desc[weapon.type].patrons){
                     //DO NOTHING
-                } else if ((this.health + 25) > 100) {
-                    this.health = 100;
-                } else {
-                    this.health += 25;
                 }
+                else{
+                    weapon.patrons = wpn.wpn_desc[weapon.type].patrons;
+                }
+                break;
+
+            case pwr.HEALTH:
+                // if (this.health === 100) {
+                //     //DO NOTHING
+                // } else if ((this.health + 25) > 100) {
+                //     this.health = 100;
+                // } else {
+                    this.health += 25;
+                // }
                 console.log("Powerup in use: HEALTH");
                 break;
             case pwr.SHIELD:

@@ -6,6 +6,7 @@ module.exports.isCollide = (x1, y1, w1, h1, x2, y2, w2, h2)=>{
     if ((y1 + h1 >= y2) && (y1 <= y2 + h2)) YColl = true;
 
     if (XColl & YColl) {
+        console.log("Collide");
         return true;
     }
     return false;

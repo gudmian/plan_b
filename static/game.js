@@ -162,8 +162,30 @@ socket.on("render", (state) => {
         }
     }
 
-    function renderItems() {
-
+    function renderPowerups() {
+        let pwrups = state.powerupInf;
+        for (let pwrupId in pwrups){
+            switch (pwrups[pwrupId].type){
+                case 1: dynamicContext.fillStyle = "pink";
+                        break;
+                case 2: dynamicContext.fillStyle = "purple";
+                        break;
+                case 3: dynamicContext.fillStyle = "blue";
+                        break;
+                case 4: dynamicContext.fillStyle = "black";
+                        break;
+                case 5: dynamicContext.fillStyle = "yellow";
+                        break;
+                case 6: dynamicContext.fillStyle = "red";
+                        break;
+                case 7: dynamicContext.fillStyle = "white";
+                        break;
+            }
+            dynamicContext.beginPath();
+            dynamicContext.arc(pwrups[pwrupId].posX, pwrups[pwrupId].posY, pwrups[pwrupId].radius, 0, 2 * Math.PI);
+            dynamicContext.fill();
+            dynamicContext.closePath();
+        }
     }
 
     function renderBullets() {
@@ -181,6 +203,7 @@ socket.on("render", (state) => {
 
     renderPlayers();
     renderBullets();
+    renderPowerups();
 });
 
 socket.on("render static", (map) => {
