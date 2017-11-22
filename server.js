@@ -42,9 +42,9 @@ mainSocket.on("connection", (socket) => {
     socket.on("new player", () => {
         let spawnCell = map.getEmptyCell()
         console.log("Spawn cell: ", spawnCell.i, " ", spawnCell.j);
-        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id);
         console.log(player.posX, " ", player.posY, " ", player.radius);
-        player.id = socket.id;
+        // player.id = socket.id;
         players[socket.id] = player;
         socket.emit("render static", map);
     });
@@ -54,7 +54,6 @@ mainSocket.on("connection", (socket) => {
         let player = players[socket.id] || {};
 
         if (player !== {}) {
-
             let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
             let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
             let topCell = map.getCellByPoint(player.posX, player.posY - 20)
@@ -111,17 +110,20 @@ mainSocket.on("connection", (socket) => {
                         bullet.posY += yFactor;
                         let cell = map.getCellByPoint(bullet.posX, bullet.posY);
                         if (cell && cell.isBlock) {
-                            console.log("Bullet collide with wall");
+                            // console.log("Bullet collide with wall");
                             buletDead(ids, bullet);
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
                                 if (bullet.collideWithPlayer(players[id])) {
-                                    console.log("Bullet collide with player");
+                                    // console.log("Bullet collide with player");
                                     buletDead(ids, bullet);
                                     players[id].health -= bullet.damage;
-                                    console.log("Player ", id, " health ", players[id].health);
+                                    // console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
+                                        // setInterval(()=>{
+                                        players[id] = respawnPlayer(id);
+                                        // }, 2000);
                                        // delete players[id];
                                        // setTimeout(() => {
                                             let spawnCell = map.getEmptyCell()
@@ -136,7 +138,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
-            players[socket.id] = respawnPlayer(x, y);
+            players[socket.id] = respawnPlayer(socket.id);
         }
     });
 
@@ -162,26 +164,23 @@ function isCollideWithOther(player) {
     return false
 }
 
-// let nextFire=0;
-
 function fireIfPossible(id) {
-    // let nextFire;
-    // let wpnFreq = players[id].weapon.frequency;
-    // if (nextFire) {
-    //     if (nextFire < Date.now()) {
-    //         fire(id);
-    //         nextFire = Date.now() + wpnFreq;
-    //     }
-    // } else {
-    //     fire(id);
-    //     nextFire = Date.now() + wpnFreq;
-    // }
-    fire(id);
+    let wpn = players[id].weapon;
+    if(wpn.lastFire === 0){
+        wpn.lastFire = Date.now();
+        fire(id);
+    }
+    else{
+        if ((wpn.lastFire + wpn.frequency) < Date.now()){
+            wpn.lastFire = Date.now();
+            fire(id);
+        }
+    }
 }
 
-function respawnPlayer() {
+function respawnPlayer(id) {
     let spawnCell = map.getEmptyCell()
-    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id);
 }
 
 function fire(id) {
@@ -190,12 +189,12 @@ function fire(id) {
     }
     if (players[id]) {
         let currentAngle = players[id].angle;
-        console.log("Angle:", currentAngle);
+        // console.log("Angle:", currentAngle);
         let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
 
         let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
         console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
-        bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id));
+        bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, players[id].weapon.owner));
     }
 }
 
@@ -207,6 +206,7 @@ function getMouseAngle(movement, socketId) {
         x = player.posX;
         y = player.posY;
     }
+    // console.log("Coursor position: ", movement.mouse_X, " ", movement.mouse_Y);
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
     if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0) {
         angle += 2 * Math.acos(0)

@@ -2,13 +2,15 @@
 
 let socket = io();
 const staticCanvas = document.getElementById("layer1");
-const dynamcCanvas = document.getElementById("layer2")
+const dynamicCanvas = document.getElementById("layer2");
+let currentHeight = document.getElementById("layer1").offsetHeight;
+console.log("height = ", currentHeight);
 let staticContext = staticCanvas.getContext("2d");
-let dynamicContext = dynamcCanvas.getContext("2d");
+let dynamicContext = dynamicCanvas.getContext("2d");
 staticCanvas.width = 800;
-dynamcCanvas.width = 800;
+dynamicCanvas.width = 800;
 staticCanvas.height = 800;
-dynamcCanvas.height = 800;
+dynamicCanvas.height = 800;
 
 socket.emit("new player");
 
@@ -23,6 +25,43 @@ let movement = {
     right: false
 };
 
+document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen ||      document.mozCancelFullScreen;
+function onFullScreenEnter() {
+	console.log("Enter fullscreen initiated from iframe");
+};
+function onFullScreenExit() {
+	console.log("Exit fullscreen initiated from iframe");
+};
+// Note: FF nightly needs about:config full-screen-api.enabled set to true.
+function enterFullscreen(id) {
+	onFullScreenEnter(id);
+	var el =  document.getElementById(id);
+	el.style.position = "static";
+	el.style.height = window.height;
+	var onfullscreenchange =  function(e){
+		var fullscreenElement = document.fullscreenElement || document.mozFullscreenElement || document.webkitFullscreenElement;
+		var fullscreenEnabled = document.fullscreenEnabled || document.mozFullscreenEnabled || document.webkitFullscreenEnabled;
+		console.log( 'fullscreenEnabled = ' + fullscreenEnabled, ',  fullscreenElement = ', fullscreenElement, ',  e = ', e);
+	}
+	el.addEventListener("webkitfullscreenchange", onfullscreenchange);
+	el.addEventListener("mozfullscreenchange",     onfullscreenchange);
+	el.addEventListener("fullscreenchange",             onfullscreenchange);
+	if (el.webkitRequestFullScreen) {
+		el.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+	} else {
+		el.mozRequestFullScreen();
+	}
+	document.querySelector('#'+id + ' button').onclick = function(){
+		exitFullscreen(id);
+	}
+}
+function exitFullscreen(id) {
+	onFullScreenExit(id);
+	document.cancelFullScreen();
+	document.querySelector('#'+id + ' button').onclick = function(){
+		enterFullscreen(id);
+	}
+}
 
 document.addEventListener('keydown', (event) => {
     switch (event.keyCode) {
@@ -62,41 +101,25 @@ document.addEventListener('keyup', (event) => {
 });
 
 
-
-
 function initMouseEvents() {
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
-    dynamcCanvas.addEventListener("mouseup", function(event)
-    {
+    dynamicCanvas.addEventListener("mouseup", function (event) {
         movement.mouse_down = false;
     }, false);
 
-    dynamcCanvas.addEventListener("mousedown", function(event)
-    {
+    dynamicCanvas.addEventListener("mousedown", function (event) {
         movement.mouse_down = true;
     }, false);
 
-    dynamcCanvas.addEventListener("mousemove", function(event)
-    {
-        //
-        // if (event.movementX !== undefined)
-        //     movement.mouse_X = event.movementX;
-        // else
-        //     movement.mouse_X = event.pageX;
-        // if (event.movementY !== undefined)
-        //     movement.mouse_Y = event.movementY;
-        // else
-        //     movement.mouse_Y = event.pageY;
-        var mouseX, mouseY;
-
-        if(event.offsetX) {
-            movement.mouse_X = event.offsetX;
-            movement.mouse_Y = event.offsetY;
+    dynamicCanvas.addEventListener("mousemove", function (event) {
+        if (event.offsetX) {
+            movement.mouse_X = event.offsetX * staticCanvas.width / currentHeight;
+            movement.mouse_Y = event.offsetY * staticCanvas.height / currentHeight;
         }
-        else if(event.layerX) {
-            movement.mouse_X = event.layerX;
-            movement.mouse_Y = event.layerY;
+        else if (event.layerX) {
+            movement.mouse_X = event.offsetX * staticCanvas.width / currentHeight;
+            movement.mouse_Y = event.offsetY * staticCanvas.height / currentHeight;
         }
 
     }, false);
@@ -106,30 +129,36 @@ initMouseEvents();
 
 setInterval(() => {
     socket.emit("change state", movement);
-}, 1000/60);
+}, 1000 / 60);
 
 socket.on("render", (state) => {
     console.log("Rendering...")
-    dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
-	var TO_RADIANS = Math.PI/180;
+    dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height)
+    var TO_RADIANS = Math.PI / 180;
 
     function renderPlayers() {
         //dynamicContext.fillStyle = "red";
         let players = state.playersInf;
-		tex_player = new Image;
-		tex_player.src = "static/textures/players/apier.png";
-		tex_player.onload = function () {
+        tex_player = new Image;
+        tex_player.src = "static/textures/players/apier.png";
+        tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
-				let dx = player.posX;
-				let dy = player.posY;
+                if (socket.id == id) {
+					if (player.health<30) {dynamicContext.fillStyle = "red";}
+					else {dynamicContext.fillStyle = "#00F";}
+					dynamicContext.font = "italic 10pt Arial";
+					dynamicContext.fillText(player.health, player.posX-15, player.posY-20);
+                }
+                let dx = player.posX;
+                let dy = player.posY;
                 dynamicContext.save();
-				dynamicContext.translate(dx,dy);
+                dynamicContext.translate(dx, dy);
                 dynamicContext.rotate(2 * Math.PI + player.angle);
-				dynamicContext.translate(-dx,-dy);
-				dynamicContext.drawImage(tex_player, player.posX-15, player.posY-15, 30, 30);
+                dynamicContext.translate(-dx, -dy);
+                dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
                 dynamicContext.restore();
-			}
+            }
         }
     }
 
@@ -141,7 +170,7 @@ socket.on("render", (state) => {
         dynamicContext.fillStyle = "blue";
         let bullets = state.bulletsInf;
         for (let id in bullets) {
-            for(let bullet of bullets[id]){
+            for (let bullet of bullets[id]) {
                 dynamicContext.beginPath();
                 dynamicContext.arc(bullet.posX, bullet.posY, bullet.radius, 0, 2 * Math.PI);
                 dynamicContext.fill();
@@ -165,11 +194,11 @@ socket.on("render static", (map) => {
                 staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
             else {
-				ground = new Image();
+                ground = new Image();
                 ground.src = "static/textures/grass00.png";
                 ground.onload = function () {
-					staticContext.drawImage(ground, cell.posX, cell.posY, cell.size, cell.size)
-				}
+                    staticContext.drawImage(ground, cell.posX, cell.posY, cell.size, cell.size)
+                }
             }
         }
     }

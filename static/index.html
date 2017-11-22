@@ -18,10 +18,10 @@
                     <input type="checkbox" id="sounds"/>
                     <label for="sounds"><span class="check"></span><b>Sounds volume</b></label>
                 </li>
-                <li><img src="static/images/full-screen.svg" id="fullscreenBtn"/><b>Full-screen</b></li>
+                <li><img src="static/images/full-screen.svg" onclick="enterFullscreen('canvases')" id="fullscreenBtn"/><b>Full-screen</b></li>
             </ul>
         </div>
-        <div class="canvases">
+        <div id="canvases">
             <canvas id="layer1"></canvas>
             <canvas id="layer2"></canvas>
         </div>

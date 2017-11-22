@@ -11,6 +11,7 @@ class Weapon{
         this.frequency = wpn.wpn_desc[type].frequency;
         this.velocity = wpn.wpn_desc[type].vel;
         this.owner;
+        this.lastFire = 0;
     }
 
     setPlayer(owner){
