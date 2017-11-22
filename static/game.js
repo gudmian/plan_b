@@ -108,9 +108,10 @@ socket.on("render", (state) => {
             for (let id in players) {
                 let player = players[id];
                 if (socket.id == id) {
-                    dynamicContext.fillStyle = "#00F";
-                    dynamicContext.font = "italic 10pt Arial";
-                    dynamicContext.fillText(player.health, player.posX - 15, player.posY - 20);
+					if (player.health<30) {dynamicContext.fillStyle = "red";}
+					else {dynamicContext.fillStyle = "#00F";}
+					dynamicContext.font = "italic 10pt Arial";
+					dynamicContext.fillText(player.health, player.posX-15, player.posY-20);
                 }
                 let dx = player.posX;
                 let dy = player.posY;
