@@ -185,16 +185,13 @@ function getMouseAngle(movement, socketId) {
         x = player.posX;
         y = player.posY;
     }
-    //console.log("Mouse pos:", movement.mouse_X, "", movement.mouse_Y);
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
-    //нужно откорректировать по четвертям чтобы избавиться от перескока
     if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0){
         angle += 2*Math.acos(0)
     }
     if ((movement.mouse_Y - y) > 0 && (movement.mouse_X - x) < 0){
         angle += 2*Math.acos(0)
     }
-    // return normalizeAngle(-angle / 360.0 * (2 * Math.PI));
         return angle;
 }
 

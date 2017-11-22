@@ -65,7 +65,7 @@ document.addEventListener('keyup', (event) => {
 
 
 function initMouseEvents() {
-   
+
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
     dynamcCanvas.addEventListener("mouseup", function(event)
@@ -80,17 +80,6 @@ function initMouseEvents() {
 
     dynamcCanvas.addEventListener("mousemove", function(event)
     {
-        //
-        // if (event.movementX !== undefined)
-        //     movement.mouse_X = event.movementX;
-        // else
-        //     movement.mouse_X = event.pageX;
-        // if (event.movementY !== undefined)
-        //     movement.mouse_Y = event.movementY;
-        // else
-        //     movement.mouse_Y = event.pageY;
-        var mouseX, mouseY;
-
         if(event.offsetX) {
             movement.mouse_X = event.offsetX;
             movement.mouse_Y = event.offsetY;
@@ -120,7 +109,7 @@ socket.on("render", (state) => {
 		tex_player = new Image;
 		tex_player.src = "static/textures/players/apier.png";
 		tex_player.onload = function () {
-            for (id in players) {
+            for (let id in players) {
                 let player = players[id];
 				let dx = player.posX;
 				let dy = player.posY;
@@ -141,11 +130,12 @@ socket.on("render", (state) => {
     function renderBullets() {
         dynamicContext.fillStyle = "blue";
         let bullets = state.bulletsInf;
-        for (id in bullets) {
+        for (let id in bullets) {
             for(let bullet of bullets[id]){
                 dynamicContext.beginPath();
                 dynamicContext.arc(bullet.posX, bullet.posY, bullet.radius, 0, 2 * Math.PI);
-                dynamicContext.fill()
+                dynamicContext.fill();
+                dynamicContext.closePath();
             }
         }
     }
