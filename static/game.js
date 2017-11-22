@@ -116,15 +116,25 @@ setInterval(() => {
 socket.on("render", (state) => {
     console.log("Rendering...")
     dynamicContext.clearRect(0, 0, dynamcCanvas.width, dynamcCanvas.height)
+	var TO_RADIANS = Math.PI/180;
 
     function renderPlayers() {
-        dynamicContext.fillStyle = "red";
+        //dynamicContext.fillStyle = "red";
         let players = state.playersInf;
-        for (id in players) {
-            let player = players[id];
-            dynamicContext.beginPath();
-            dynamicContext.arc(player.posX, player.posY, player.radius, player.angle, 1.5 * Math.PI+player.angle);
-            dynamicContext.fill()
+		tex_player = new Image;
+		tex_player.src = "static/textures/players/apier.png";
+		tex_player.onload = function () {
+            for (id in players) {
+                let player = players[id];
+				let dx = player.posX;
+				let dy = player.posY;
+                dynamicContext.save();
+				dynamicContext.translate(dx,dy);
+                dynamicContext.rotate(2 * Math.PI + player.angle);
+				dynamicContext.translate(-dx,-dy);
+				dynamicContext.drawImage(tex_player, player.posX-15, player.posY-15, 30, 30);
+                dynamicContext.restore();
+			}
         }
     }
 
@@ -159,8 +169,11 @@ socket.on("render static", (map) => {
                 staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
             else {
-                staticContext.fillStyle = "green";
-                staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
+				ground = new Image();
+                ground.src = "static/textures/grass00.png";
+                ground.onload = function () {
+					staticContext.drawImage(ground, cell.posX, cell.posY, cell.size, cell.size)
+				}
             }
         }
     }
