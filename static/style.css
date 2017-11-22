@@ -86,13 +86,15 @@ input[type="checkbox"]:checked + label span
 }
 #layer1 {
     position: absolute;
-    left: 28%;
+    left: 50%;
+    margin-left: -23%;
     top: 65px;
     z-index: 0;
 }
 #layer2 {
     position: absolute;
-    left: 28%;
+    left: 50%;
+    margin-left: -23%;
     top: 65px;
     z-index: 1;
 }
