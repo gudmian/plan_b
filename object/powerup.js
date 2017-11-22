@@ -6,6 +6,7 @@ class PowerUp{
         this.posX = cell.posX;
         this.posY = cell.posY;
         this.type = type;
+        this.duration = 5000;
     }
 }
 

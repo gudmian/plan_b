@@ -46,5 +46,7 @@ module.exports.constants = {
         {
             HEALTH: 4,
             SHIELD: 5,
+            SPEED: 6,
+            BERSERC:7
         },
 };
