@@ -55,7 +55,7 @@ mainSocket.on("connection", (socket) => {
 
         if (player !== {}) {
 
-            let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
+            let leftCell = map.getCellByPoint(player.posX - 15, player.posY)
             let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
             let topCell = map.getCellByPoint(player.posX, player.posY - 20)
             let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
