@@ -25,10 +25,6 @@ class Player {
         this.setSimpleWeapon();
     }
 
-    spawn() {
-
-    }
-
     collideLeft(collobj) {
         if (collobj.isBlock) {
             let dist = (this.posX - this.radius) - (collobj.PosX + collobj.size)
