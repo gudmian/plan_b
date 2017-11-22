@@ -69,7 +69,7 @@ document.addEventListener('keyup', (event) => {
 function initMouseEvents() {
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
-    dynamicCanvas.addEventListener("mouseup", function(event)
+    dynamcCanvas.addEventListener("mouseup", function(event)
     {
         movement.mouse_down = false;
     }, false);
@@ -86,8 +86,8 @@ function initMouseEvents() {
             movement.mouse_Y = event.offsetY * staticCanvas.height/currentHeight;
         }
         else if(event.layerX) {
-            movement.mouse_X = event.layerX * staticCanvas.width/currentHeight;
-            movement.mouse_Y = event.layerY * staticCanvas.height/currentHeight;
+            movement.mouse_X = event.layerX;
+            movement.mouse_Y = event.layerY;
         }
 
     }, false);
@@ -112,6 +112,11 @@ socket.on("render", (state) => {
 		tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
+                if (socket.id == id) {
+					dynamicContext.fillStyle = "#00F";
+					dynamicContext.font = "italic 10pt Arial";
+					dynamicContext.fillText(player.health, player.posX-15, player.posY-20);
+                }
 				let dx = player.posX;
 				let dy = player.posY;
                 dynamicContext.save();
