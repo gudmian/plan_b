@@ -1,20 +1,32 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Наша многопользовательская игра</title>
-    <style>
-        canvas {
-            width: 800px;
-            height: 800px;
-            border: 5px solid black;
-        }
-    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>SuperCrazyGame2DShooter</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<div style="position: relative;">
-    <canvas id="layer1" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
-    <canvas id="layer2" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+<div id="viewport-frame">
+    <h1>SuperCrazyGame2DShooter</h1>
+    <div id="viewport-info">
+        <div id="configuration">
+            <ul class="list">
+                <li><input id="sensitive" type="range" min="0" max="100" value="50" /></li>
+                <li>
+                    <input type="checkbox" id="sounds"/>
+                    <label for="sounds"><span class="check"></span><b>Sounds volume</b></label>
+                </li>
+                <li><img src="static/images/full-screen.svg" id="fullscreenBtn"/><b>Full-screen</b></li>
+            </ul>
+        </div>
+        <div class="canvases">
+            <canvas id="layer1"></canvas>
+            <canvas id="layer2"></canvas>
+        </div>
+    </div>
 </div>
 </body>
-<script src="./static/game.js"></script>
+<script src="static/game.js"></script>
 </html>

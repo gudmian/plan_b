@@ -65,7 +65,6 @@ document.addEventListener('keyup', (event) => {
 
 
 function initMouseEvents() {
-
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
     dynamcCanvas.addEventListener("mouseup", function(event)
@@ -80,6 +79,17 @@ function initMouseEvents() {
 
     dynamcCanvas.addEventListener("mousemove", function(event)
     {
+        //
+        // if (event.movementX !== undefined)
+        //     movement.mouse_X = event.movementX;
+        // else
+        //     movement.mouse_X = event.pageX;
+        // if (event.movementY !== undefined)
+        //     movement.mouse_Y = event.movementY;
+        // else
+        //     movement.mouse_Y = event.pageY;
+        var mouseX, mouseY;
+
         if(event.offsetX) {
             movement.mouse_X = event.offsetX;
             movement.mouse_Y = event.offsetY;

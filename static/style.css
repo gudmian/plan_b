@@ -1,0 +1,103 @@
+* {
+
+}
+body {
+    background: #25354f;
+    color: #25354f;
+    font: normal normal 14px Roboto, Arial, sans-serif;
+    margin: 10px;
+    padding: 0
+}
+#viewport-frame, #webgl-err {
+    margin: auto;
+    position: relative;
+}
+#viewport-frame h1 {
+    color: #fafafa;
+    font-size: 20px;
+    text-align: center;
+    margin: 5px;
+}
+canvas {
+    display: block;
+    width: auto;
+    height: 80vh;
+    border: 5px solid black;
+    margin: 0 auto;
+}
+#viewport-info {
+    position: relative;
+    min-height: 40px;
+    margin: 10px;
+}
+#viewport-info ul {
+    list-style: none;
+    padding: 0 20px;
+}
+#configuration {
+    float: left;
+    width: 100%;
+    height: 100%;
+    background-color: #284987;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.list li {
+    display: inline;
+    list-style-type: none;
+    padding-right: 30px;
+}
+.list b {
+    color: #fafafa;
+}
+#fullscreenBtn {
+    height: 15px;
+    width: 15px;
+    margin: -1px 10px 0 0;
+    vertical-align: middle;
+    cursor: pointer;
+}
+input[type="checkbox"] {
+    display: none;
+}
+input[type="checkbox"] + label {
+    color: #fafafa;
+}
+input[type="checkbox"] + label span {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin: -1px 10px 0 0;
+    vertical-align: middle;
+    background: url(../static/images/noncheck.svg) top no-repeat;
+    cursor: pointer;
+}
+input[type="checkbox"]:checked + label span
+{
+    width: 15px;
+    height: 15px;
+    background:url(../static/images/check.svg) no-repeat;
+}
+.canvases {
+    position: relative;
+}
+#layer1 {
+    position: absolute;
+    left: 50%;
+    margin-left: -23%;
+    top: 65px;
+    z-index: 0;
+}
+#layer2 {
+    position: absolute;
+    left: 50%;
+    margin-left: -23%;
+    top: 65px;
+    z-index: 1;
+}
+
+
+
