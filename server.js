@@ -110,16 +110,16 @@ mainSocket.on("connection", (socket) => {
                         bullet.posY += yFactor;
                         let cell = map.getCellByPoint(bullet.posX, bullet.posY);
                         if (cell && cell.isBlock) {
-                            console.log("Bullet collide with wall");
+                            // console.log("Bullet collide with wall");
                             buletDead(ids, bullet);
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
                                 if (bullet.collideWithPlayer(players[id])) {
-                                    console.log("Bullet collide with player");
+                                    // console.log("Bullet collide with player");
                                     buletDead(ids, bullet);
                                     players[id].health -= bullet.damage;
-                                    console.log("Player ", id, " health ", players[id].health);
+                                    // console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
                                         // setInterval(()=>{
                                         players[id] = respawnPlayer(id);
@@ -159,21 +159,18 @@ function isCollideWithOther(player) {
     return false
 }
 
-// let nextFire=0;
-
 function fireIfPossible(id) {
-    // let nextFire;
-    // let wpnFreq = players[id].weapon.frequency;
-    // if (nextFire) {
-    //     if (nextFire < Date.now()) {
-    //         fire(id);
-    //         nextFire = Date.now() + wpnFreq;
-    //     }
-    // } else {
-    //     fire(id);
-    //     nextFire = Date.now() + wpnFreq;
-    // }
-    fire(id);
+    let wpn = players[id].weapon;
+    if(wpn.lastFire === 0){
+        wpn.lastFire = Date.now();
+        fire(id);
+    }
+    else{
+        if ((wpn.lastFire + wpn.frequency) < Date.now()){
+            wpn.lastFire = Date.now();
+            fire(id);
+        }
+    }
 }
 
 function respawnPlayer(id) {
@@ -187,12 +184,12 @@ function fire(id) {
     }
     if (players[id]) {
         let currentAngle = players[id].angle;
-        console.log("Angle:", currentAngle);
+        // console.log("Angle:", currentAngle);
         let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
 
         let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
         console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
-        bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id));
+        bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, players[id].weapon.owner));
     }
 }
 
