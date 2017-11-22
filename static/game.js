@@ -65,11 +65,7 @@ document.addEventListener('keyup', (event) => {
 
 
 function initMouseEvents() {
-    dynamcCanvas.addEventListener("click", function(event)
-    {
-        dynamcCanvas.requestPointerLock();
-    }, false);
-
+   
     // Mouse handling code
     // When the mouse is pressed it rotates the players view
     dynamcCanvas.addEventListener("mouseup", function(event)
@@ -111,7 +107,7 @@ initMouseEvents();
 
 setInterval(() => {
     socket.emit("change state", movement);
-}, 1000 / 60);
+}, 1000/60);
 
 socket.on("render", (state) => {
     console.log("Rendering...")
