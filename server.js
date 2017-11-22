@@ -97,8 +97,8 @@ mainSocket.on("connection", (socket) => {
             if (data.mouse_down) {
                 fireIfPossible(socket.id);
             }
-            for (let ids in bullets) {
-                for (var bullet of bullets[ids]) {
+            for (let bulletId in bullets) {
+                for (var bullet of bullets[bulletId]) {
                     let currentAngle = bullet.angle;
                     let currentAngleR = currentAngle * (Math.PI / 180);
                     let intervals = 5;
@@ -109,15 +109,16 @@ mainSocket.on("connection", (socket) => {
                         bullet.posX += xFactor;
                         bullet.posY += yFactor;
                         let cell = map.getCellByPoint(bullet.posX, bullet.posY);
+
+                        // console.log("Bullets ", bullets, " id", bullets[bulletId]);
                         if (cell && cell.isBlock) {
                             // console.log("Bullet collide with wall");
-                            buletDead(ids, bullet);
+                            buletDead(bulletId, bullet);
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
                                 if (bullet.collideWithPlayer(players[id])) {
-                                    // console.log("Bullet collide with player");
-                                    buletDead(ids, bullet);
+                                    buletDead(bulletId, bullet);
                                     players[id].health -= bullet.damage;
                                     // console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
@@ -151,7 +152,10 @@ mainSocket.on("connection", (socket) => {
 
 function buletDead(id, bullet) {
     let bulletIndex = bullets[id].indexOf(bullet);
-    bullets[id].splice(bulletIndex, 1);
+    if (bulletIndex > -1) {
+        // console.log("Kill bullet ", bulletIndex)
+        bullets[id].splice(bulletIndex, 1);
+    }
 }
 
 function isCollideWithOther(player) {
@@ -193,7 +197,7 @@ function fire(id) {
         let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
 
         let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
-        console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
+        // console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
         bullets[id].push(new Bullet(players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, players[id].weapon.owner));
     }
 }
