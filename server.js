@@ -64,31 +64,31 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideLeft(leftCell)) {
                     player.posX -= 5;
                     if (isCollideWithOther(player)) {
-                        player.posX +=5
+                        player.posX += 5
                     }
                 }
             }
             if (data.up) {
                 if (!player.collideTop(topCell)) {
-                        player.posY -= 5;
+                    player.posY -= 5;
                     if (isCollideWithOther(player)) {
-                        player.posY +=5
+                        player.posY += 5
                     }
                 }
             }
             if (data.right) {
                 if (!player.collideRight(rightCell)) {
-                        player.posX += 5;
+                    player.posX += 5;
                     if (isCollideWithOther(player)) {
-                        player.posX -=5
+                        player.posX -= 5
                     }
                 }
             }
             if (data.down) {
                 if (!player.collideBottom(bottomCell)) {
-                        player.posY += 5;
+                    player.posY += 5;
                     if (isCollideWithOther(player)) {
-                        player.posY -=5
+                        player.posY -= 5
                     }
                 }
             }
@@ -122,13 +122,13 @@ mainSocket.on("connection", (socket) => {
                                     players[id].health -= bullet.damage;
                                     console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
-                                        // setInterval(()=>{
-                                        let spawnCell = map.getEmptyCell()
-                                        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
-                                        players[id] = player;
-                                        // }, 2000);
+                                       // delete players[id];
+                                       // setTimeout(() => {
+                                            let spawnCell = map.getEmptyCell()
+                                            let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell);
+                                            players[id] = player;
+                                       // }, 2000);
                                     }
-                                    // delete players[id];
                                 }
                             }
                         }
