@@ -10,6 +10,7 @@ class Weapon{
         this.patrons = wpn.wpn_desc[type].patrons;
         this.frequency = wpn.wpn_desc[type].frequency;
         this.velocity = wpn.wpn_desc[type].vel;
+        this.name = wpn.wpn_desc[type].name;
         this.owner;
         this.lastFire = 0;
     }

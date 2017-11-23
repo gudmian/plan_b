@@ -16,7 +16,8 @@ class Player {
         this.angle = 0;
         this.health = 100;
         this.cell = cell;
-        this.weapon;
+        this.weapon = {};
+        this.currentWeapon;
         this.powerup;
         this.isShield = false;
         this.velocity = 5;
@@ -31,7 +32,7 @@ class Player {
 
     collideLeft(collobj) {
         if (collobj.isBlock) {
-            let dist = (this.posX - this.radius) - (collobj.PosX + collobj.size)
+            let dist = (this.posX - this.radius) - (collobj.PosX + collobj.size);
             if (dist >= 0) {
                 return false
             }
@@ -43,7 +44,7 @@ class Player {
 
     collideRight(collobj) {
         if (collobj.isBlock) {
-            let dist = (collobj.PosX - collobj.size) - (this.posX + this.radius)
+            let dist = (collobj.PosX - collobj.size) - (this.posX + this.radius);
             if (dist >= 0) {
                 return false
             }
@@ -55,7 +56,7 @@ class Player {
 
     collideTop(collobj) {
         if (collobj.isBlock) {
-            let dist = (this.posY - this.radius) - (collobj.PosY + collobj.size)
+            let dist = (this.posY - this.radius) - (collobj.PosY + collobj.size);
             if (dist >= 0) {
                 return false
             }
@@ -91,16 +92,21 @@ class Player {
 
     setCustomWeapon(weapon) {
         if (weapon === undefined) {
-            this.setSimpleWeapon();
             return;
         }
-        this.weapon = new Weapon(weapon);
-        this.weapon.setPlayer(this.id)
+        this.weapon[weapon] = new Weapon(weapon);
+        this.currentWeapon = this.weapon[weapon];
+        this.currentWeapon.setPlayer(this.id);
     }
 
     setSimpleWeapon() {
-        this.weapon = new Weapon(wpn.SIMPLE);
-        this.weapon.setPlayer(this.id);
+        this.weapon [wpn.SIMPLE] = new Weapon(wpn.SIMPLE);
+        this.weapon [wpn.MEDIUM] = new Weapon(wpn.MEDIUM);
+        this.weapon [wpn.MEDIUM].patrons = 0;
+        this.weapon [wpn.STRONG] = new Weapon(wpn.STRONG);
+        this.weapon [wpn.STRONG].patrons = 0;
+        this.currentWeapon = this.weapon [wpn.SIMPLE];
+        this.currentWeapon.setPlayer(this.id);
     }
 
     setPower(power) {
@@ -121,12 +127,14 @@ class Player {
                 this.setCustomWeapon(wpn.STRONG);
                 break;
             case pwr.PATRONS:
-                let weapon = this.weapon;
-                if(weapon.patrons === wpn.wpn_desc[weapon.type].patrons){
-                    //DO NOTHING
-                }
-                else{
-                    weapon.patrons = wpn.wpn_desc[weapon.type].patrons;
+                for (let type in this.weapon){
+                    let weapon = this.weapon[type];
+                    if(weapon.patrons === wpn.wpn_desc[weapon.type].patrons){
+                        //DO NOTHING
+                    }
+                    else{
+                        weapon.patrons = wpn.wpn_desc[weapon.type].patrons;
+                    }
                 }
                 break;
 
@@ -175,7 +183,7 @@ class Player {
     restoreDefaults() {
         this.velocity = 5;
         this.isShield = false;
-        this.weapon.restoreDamage();
+        this.currentWeapon.restoreDamage();
     }
 }
 
