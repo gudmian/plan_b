@@ -99,16 +99,7 @@ class Player {
     }
 
     isInArea(area, player) {
-        var XColl = false;
-        var YColl = false;
-        if ((this.posX + area >= player.posX) && (this.posX <= player.posX + player.radius)) XColl = true;
-        if ((this.posY + area >= player.posY) && (this.posY <= player.posY + player.radius)) YColl = true;
-
-
-        if (XColl & YColl) {
-            return true;
-        }
-        return false;
+        return this.countDistToPlayer(player) < 50;
     }
 
     setCustomWeapon(weapon) {
@@ -255,46 +246,56 @@ class Player {
         let accuracy = Math.random();
         this.actions.mouse_X = player.posX + accuracy;
         this.actions.mouse_Y = player.posY + accuracy;
+        console.log(this.actions.mouse_X);
+        console.log(this.actions.mouse_Y);
     }
 
     setDeffaultActions() {
-        this.stopFire();
         this.stopGoDown();
         this.stopGoUp();
         this.stopGoLeft();
         this.stopGoRight();
     }
 
-
-    wanderToPlayer(player) {
+    seek(player){
         let distX = player.posX;
         let distY = player.posY;
-        if (this.countDistToPlayer(player) > (this.radius+20)) {
-            if (this.posX < distX) {
-                this.startGoRight();
-            }
-            if (this.posX > distX) {
-                this.startGoLeft();
-            }
-            if (this.posY < distY) {
-                this.startGoDown()
-            }
-            if (this.posY > distY) {
-                this.startGoUp();
-            }
+        if (this.posX < distX) {
+            this.startGoRight();
+        }
+        if (this.posX > distX) {
+            this.startGoLeft();
+        }
+        if (this.posY < distY) {
+            this.startGoDown()
+        }
+        if (this.posY > distY) {
+            this.startGoUp();
+        }
+    }
+
+    hide(player){
+        let distX = player.posX;
+        let distY = player.posY;
+        if (this.posX > distX) {
+            this.startGoRight();
+        }
+        if (this.posX < distX) {
+            this.startGoLeft();
+        }
+        if (this.posY > distY) {
+            this.startGoDown()
+        }
+        if (this.posY < distY) {
+            this.startGoUp();
+        }
+    }
+
+    wanderToPlayer(player) {
+        if ((this.countDistToPlayer(player) > (this.radius+20)) && (this.health > 50)) {
+           this.seek(player);
         } else {
-            if (this.posX < distX) {
-                this.startGoRight();
-            }
-            if (this.posX > distX) {
-                this.startGoLeft();
-            }
-            if (this.posY < distY) {
-                this.startGoDown()
-            }
-            if (this.posY > distY) {
-                this.startGoUp();
-            }
+            this.hide(player);
         }
     }
 
@@ -351,24 +352,28 @@ class Player {
         this.setDeffaultActions();
         let minDist = 100000;
         let nearestPlayer = null;
+        let onMisledPlayer = null;
+
         for (let playerId in players) {
             let player = players[playerId];
             if (player.id === this.id) continue;
             let dist = this.countDistToPlayer(player);
-            console.log("Dist from", this.id, ":", dist, "Min dist to", player.id, ":", minDist)
+            // console.log("Dist from", this.id, ":", dist, "Min dist to", player.id, ":", minDist)
             if (dist < minDist) {
                 minDist = dist;
                 nearestPlayer = player;
             }
             if (this.isInArea(this.botVision, player)) {
                 console.log("Fire on player", playerId);
-                this.aimOnPlayer(player);
+                onMisledPlayer = player;
+                this.aimOnPlayer(onMisledPlayer);
                 this.startFire();
                 break;
             }
         }
+        if(onMisledPlayer === null) this.stopFire();
         if (nearestPlayer !== null) {
-            console.log(this.id, " follows by", nearestPlayer.id);
+            // console.log(this.id, " follows by", nearestPlayer.id);
             this.wanderToPlayer(nearestPlayer);
         }
     }
