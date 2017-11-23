@@ -25,12 +25,15 @@ let players = {};
 let bullets = {};
 let pwrups = [];
 
+let scoreTable = {};
+
 let map = null;
 
 let renderData = {
     playersInf: players,
     bulletsInf: bullets,
-    powerupInf: pwrups
+    powerupInf: pwrups,
+    scores : scoreTable
 };
 
 for(let player in players){
@@ -39,15 +42,12 @@ for(let player in players){
 
 mainSocket.on("connection", (socket) => {
 
-console.log(players);
-console.log(players.length);
-console.log("Connected socket with id:", socket.id);
 
     if (!map) {
         map = new Map(1);
     }
     socket.on("connect", () => {
-        console.log("Player conected")
+        console.log("Connected player with id:", socket.id);
     });
 
     socket.on("new player", () => {
@@ -57,6 +57,7 @@ console.log("Connected socket with id:", socket.id);
         console.log(player.posX, " ", player.posY, " ", player.radius);
         // player.id = socket.id;
         players[socket.id] = player;
+        scoreTable[socket.id]=0;
         createPowerup(socket.id);
         socket.emit("render static", map);
     });
@@ -136,6 +137,7 @@ console.log("Connected socket with id:", socket.id);
                                     // console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
                                         // setTimeout(() => {
+                                        scoreTable[bullet.owner] += 100;
                                             players[id] = respawnPlayer(id);
                                         // }, 2000);
                                     }
@@ -161,7 +163,6 @@ console.log("Connected socket with id:", socket.id);
     });
 
     socket.on("disconnect", () => {
-        socket.disable()
         delete players[socket.id];
     });
 
@@ -265,9 +266,7 @@ setInterval(() => {
     mainSocket.sockets.emit("render", renderData);
 }, 1000 / 60);
 
-setInterval(() => {
-    mainSocket.emit("create pwrup");
-}, 200000)
+
 
 server.listen(8080, () => {
     console.log("Server run on port:", 8080);
