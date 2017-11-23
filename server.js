@@ -21,6 +21,8 @@ app.get("/", (req, res) => {
     res.sendfile("./static/index.html");
 });
 
+let amountBots = 5;
+let botId = 0;
 
 let players = {};
 let bullets = {};
@@ -41,11 +43,13 @@ for (let player in players) {
     delete players[player]
 }
 
+
 mainSocket.on("connection", (socket) => {
 
 
     if (!map) {
         map = new Map(1);
+        createBots();
     }
     socket.on("connect", () => {
         console.log("Connected player with id:", socket.id);
@@ -53,9 +57,7 @@ mainSocket.on("connection", (socket) => {
 
     socket.on("new player", () => {
         let spawnCell = map.getEmptyCell();
-        console.log("Spawn cell: ", spawnCell.i, " ", spawnCell.j);
-        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id);
-        console.log(player.posX, " ", player.posY, " ", player.radius);
+        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id, false);
         // player.id = socket.id;
         players[socket.id] = player;
         scoreTable[socket.id] = 0;
@@ -78,7 +80,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideLeft(leftCell)) {
                     player.posX -= player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posX += player.velocity + 1;
+                        player.posX += player.velocity;
                     }
                 }
             }
@@ -86,7 +88,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideTop(topCell)) {
                     player.posY -= player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posY += player.velocity + 1;
+                        player.posY += player.velocity;
                     }
                 }
             }
@@ -94,7 +96,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideRight(rightCell)) {
                     player.posX += player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posX -= player.velocity - 1;
+                        player.posX -= player.velocity;
                     }
                 }
             }
@@ -102,7 +104,7 @@ mainSocket.on("connection", (socket) => {
                 if (!player.collideBottom(bottomCell)) {
                     player.posY += player.velocity;
                     if (isCollideWithOther(player)) {
-                        player.posY -= player.velocity - 1;
+                        player.posY -= player.velocity;
                     }
                 }
             }
@@ -125,9 +127,7 @@ mainSocket.on("connection", (socket) => {
                         bullet.posY += yFactor;
                         let cell = map.getCellByPoint(bullet.posX, bullet.posY);
 
-                        // console.log("Bullets ", bullets, " id", bullets[bulletId]);
                         if (cell && cell.isBlock) {
-                            // console.log("Bullet collide with wall");
                             bulletDead(bulletId, bullet);
                         } else {
                             for (let id in players) {
@@ -135,11 +135,10 @@ mainSocket.on("connection", (socket) => {
                                 if (bullet.collideWithPlayer(players[id]) && !players[id].isShield) {
                                     bulletDead(bulletId, bullet);
                                     players[id].health -= bullet.damage;
-                                    // console.log("Player ", id, " health ", players[id].health);
                                     if (players[id].health <= 0) {
                                         // setTimeout(() => {
                                         scoreTable[bullet.owner] += 100;
-                                        players[id] = respawnPlayer(id);
+                                        players[id] = respawnPlayer(id, players[id].isBot);
                                         // }, 2000);
                                     }
                                 }
@@ -159,7 +158,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
-            players[socket.id] = respawnPlayer(socket.id);
+            players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
         }
     });
 
@@ -169,6 +168,7 @@ mainSocket.on("connection", (socket) => {
 
 
 });
+
 
 function createPowerup(id) {
     setInterval(() => {
@@ -180,10 +180,17 @@ function createPowerup(id) {
 };
 
 
+function createBots() {
+    for (let i = 0; i < amountBots; i++) {
+        players[botId] = respawnPlayer(botId, true);
+        botId++;
+    }
+}
+
+
 function bulletDead(id, bullet) {
     let bulletIndex = bullets[id].indexOf(bullet);
     if (bulletIndex > -1) {
-        // console.log("Kill bullet ", bulletIndex)
         bullets[id].splice(bulletIndex, 1);
     }
 }
@@ -192,7 +199,6 @@ function isCollideWithOther(player) {
     for (let other in players) {
         if (player.id === other) continue;
         if (player.collidePlayer(players[other])) {
-            console.log("Collide with player", other);
             return true;
         }
     }
@@ -222,9 +228,9 @@ function fireIfPossible(id) {
     }
 }
 
-function respawnPlayer(id) {
-    let spawnCell = map.getEmptyCell()
-    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id);
+function respawnPlayer(id, isBot) {
+    let spawnCell = map.getEmptyCell();
+    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id, isBot);
 }
 
 function fire(id) {
@@ -233,11 +239,65 @@ function fire(id) {
     }
     if (players[id]) {
         let currentAngle = players[id].angle;
-        // console.log("Angle:", currentAngle);
         let bulletX = players[id].posX + players[id].radius * Math.cos(currentAngle) + 0.5;
         let bulletY = players[id].posY + players[id].radius * Math.sin(currentAngle) + 0.5;
         // console.log("Bullet params:", players[id].weapon.damage, players[id].weapon.velocity, currentAngle, bulletX, bulletY, id)
         bullets[id].push(new Bullet(players[id].currentWeapon.damage, players[id].currentWeapon.velocity, currentAngle, bulletX, bulletY, players[id].currentWeapon.owner));
+    }
+}
+
+
+function botsTurn() {
+    for (let pId in players) {
+        let player = players[pId];
+        if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
+            if (player.isBot) {
+                player.makeDesicions(players);
+                let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
+                let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
+                let topCell = map.getCellByPoint(player.posX, player.posY - 20)
+                let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
+
+                if (player.actions.left) {
+                    if (!player.collideLeft(leftCell)) {
+                        player.posX -= player.velocity;
+                        if (isCollideWithOther(player)) {
+                            player.posX += player.velocity;
+                        }
+                    }
+                }
+                if (player.actions.up) {
+                    if (!player.collideTop(topCell)) {
+                        player.posY -= player.velocity;
+                        if (isCollideWithOther(player)) {
+                            player.posY += player.velocity;
+                        }
+                    }
+                }
+                if (player.actions.right) {
+                    if (!player.collideRight(rightCell)) {
+                        player.posX += player.velocity;
+                        if (isCollideWithOther(player)) {
+                            player.posX -= player.velocity;
+                        }
+                    }
+                }
+                if (player.actions.down) {
+                    if (!player.collideBottom(bottomCell)) {
+                        player.posY += player.velocity;
+                        if (isCollideWithOther(player)) {
+                            player.posY -= player.velocity;
+                        }
+                    }
+                }
+                if (player.angle !== getMouseAngle(player.actions, pId)) {
+                    player.angle = getMouseAngle(player.actions, pId);
+                }
+                if (player.actions.mouse_down) {
+                    fireIfPossible(pId);
+                }
+            }
+        }
     }
 }
 
@@ -249,7 +309,6 @@ function getMouseAngle(movement, socketId) {
         x = player.posX;
         y = player.posY;
     }
-    // console.log("Coursor position: ", movement.mouse_X, " ", movement.mouse_Y);
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
     if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0) {
         angle += 2 * Math.acos(0)
@@ -269,6 +328,7 @@ function normalizeAngle(angle) {
 
 
 setInterval(() => {
+    botsTurn();
     mainSocket.sockets.emit("render", renderData);
 }, 1000 / 60);
 

@@ -7,12 +7,14 @@ var pwr = require("../global").constants.POWERUP;
 var Map = require("./map");
 
 class Player {
-    constructor(x, y, cell, id) {
+    constructor(x, y, cell, id, isBot) {
         this.id = id;
         this.name;
         this.radius = 15 /*px*/;
         this.posX = x;
         this.posY = y;
+        this.isBot = isBot;
+        this.botVision = 50;
         this.angle = 0;
         this.health = 100;
         this.cell = cell;
@@ -22,12 +24,18 @@ class Player {
         this.isShield = false;
         this.velocity = 5;
 
+        this.actions = {
+            mouse_X: 0,
+            mouse_Y: 0,
+            mouse_down: false,
+            mouse_wheel: 0,
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
 
         this.setSimpleWeapon();
-    }
-
-    spawn() {
-
     }
 
     collideLeft(collobj) {
@@ -90,6 +98,19 @@ class Player {
         return false;
     }
 
+    isInArea(area, player) {
+        var XColl = false;
+        var YColl = false;
+        if ((this.posX + area >= player.posX) && (this.posX <= player.posX + player.radius)) XColl = true;
+        if ((this.posY + area >= player.posY) && (this.posY <= player.posY + player.radius)) YColl = true;
+
+
+        if (XColl & YColl) {
+            return true;
+        }
+        return false;
+    }
+
     setCustomWeapon(weapon) {
         if (weapon === undefined) {
             return;
@@ -127,12 +148,12 @@ class Player {
                 this.setCustomWeapon(wpn.STRONG);
                 break;
             case pwr.PATRONS:
-                for (let type in this.weapon){
+                for (let type in this.weapon) {
                     let weapon = this.weapon[type];
-                    if(weapon.patrons === wpn.wpn_desc[weapon.type].patrons){
+                    if (weapon.patrons === wpn.wpn_desc[weapon.type].patrons) {
                         //DO NOTHING
                     }
-                    else{
+                    else {
                         weapon.patrons = wpn.wpn_desc[weapon.type].patrons;
                     }
                 }
@@ -144,7 +165,7 @@ class Player {
                 // } else if ((this.health + 25) > 100) {
                 //     this.health = 100;
                 // } else {
-                    this.health += 25;
+                this.health += 25;
                 // }
                 console.log("Powerup in use: HEALTH");
                 break;
@@ -185,6 +206,174 @@ class Player {
         this.isShield = false;
         this.currentWeapon.restoreDamage();
     }
+
+
+    //FOR AI
+    startFire() {
+        this.actions.mouse_down = true;
+    }
+
+    stopFire() {
+        this.actions.mouse_down = false;
+    }
+
+    startGoLeft() {
+        this.actions.left = true;
+    }
+
+    stopGoLeft() {
+        this.actions.left = false;
+    }
+
+    startGoRight() {
+        this.actions.right = true;
+    }
+
+    stopGoRight() {
+        this.actions.right = false;
+    }
+
+
+    startGoUp() {
+        this.actions.up = true;
+    }
+
+    stopGoUp() {
+        this.actions.up = false;
+    }
+
+    startGoDown() {
+        this.actions.down = true;
+    }
+
+    stopGoDown() {
+        this.actions.down = false;
+    }
+
+
+    aimOnPlayer(player) {
+        let accuracy = Math.random();
+        this.actions.mouse_X = player.posX + accuracy;
+        this.actions.mouse_Y = player.posY + accuracy;
+    }
+
+    setDeffaultActions() {
+        this.stopFire();
+        this.stopGoDown();
+        this.stopGoUp();
+        this.stopGoLeft();
+        this.stopGoRight();
+    }
+
+
+    wanderToPlayer(player) {
+        let distX = player.posX;
+        let distY = player.posY;
+        if (this.countDistToPlayer(player) > (this.radius+20)) {
+            if (this.posX < distX) {
+                this.startGoRight();
+            }
+            if (this.posX > distX) {
+                this.startGoLeft();
+            }
+            if (this.posY < distY) {
+                this.startGoDown()
+            }
+            if (this.posY > distY) {
+                this.startGoUp();
+            }
+        } else {
+            if (this.posX < distX) {
+                this.startGoRight();
+            }
+            if (this.posX > distX) {
+                this.startGoLeft();
+            }
+            if (this.posY < distY) {
+                this.startGoDown()
+            }
+            if (this.posY > distY) {
+                this.startGoUp();
+            }
+        }
+    }
+
+
+//     private function wander() :Vector3D {
+//     // Calculate the circle center
+//     var circleCenter :Vector3D;
+//     circleCenter = velocity.clone();
+//     circleCenter.normalize();
+//     circleCenter.scaleBy(CIRCLE_DISTANCE);
+//     //
+//     // Calculate the displacement force
+//     var displacement :Vector3D;
+//     displacement = new Vector3D(0, -1);
+//     displacement.scaleBy(CIRCLE_RADIUS);
+//     //
+//     // Randomly change the vector direction
+//     // by making it change its current angle
+//     setAngle(displacement, wanderAngle);
+//     //
+//     // Change wanderAngle just a bit, so it
+//     // won't have the same value in the
+//     // next game frame.
+//     wanderAngle += Math.random() * ANGLE_CHANGE - ANGLE_CHANGE * .5;
+//     //
+//     // Finally calculate and return the wander force
+//     var wanderForce :Vector3D;
+//     wanderForce = circleCenter.add(displacement);
+//     return wanderForce;
+// }
+//
+//     public function setAngle(vector :Vector3D, value:Number):void {
+//     var len :Number = vector.length;
+//     vector.x = Math.cos(value) * len;
+//     vector.y = Math.sin(value) * len;
+//
+
+
+    // steering = wander()
+    // steering = truncate (steering, max_force)
+    // steering = steering / mass
+    // velocity = truncate (velocity + steering , max_speed)
+    // position = position + velocity
+
+    countDistToPlayer(player) {
+        let dx = this.posX - player.posX;
+        let dy = this.posY - player.posY;
+        let result = Math.sqrt(dx * dx + dy * dy);
+        return result;
+    }
+
+    //call from server
+    makeDesicions(players) {
+        this.setDeffaultActions();
+        let minDist = 100000;
+        let nearestPlayer = null;
+        for (let playerId in players) {
+            let player = players[playerId];
+            if (player.id === this.id) continue;
+            let dist = this.countDistToPlayer(player);
+            console.log("Dist from", this.id, ":", dist, "Min dist to", player.id, ":", minDist)
+            if (dist < minDist) {
+                minDist = dist;
+                nearestPlayer = player;
+            }
+            if (this.isInArea(this.botVision, player)) {
+                console.log("Fire on player", playerId);
+                this.aimOnPlayer(player);
+                this.startFire();
+                break;
+            }
+        }
+        if (nearestPlayer !== null) {
+            console.log(this.id, " follows by", nearestPlayer.id);
+            this.wanderToPlayer(nearestPlayer);
+        }
+    }
+
+
 }
 
 module.exports = Player;

@@ -4,7 +4,6 @@ let socket = io();
 const staticCanvas = document.getElementById("layer1");
 const dynamicCanvas = document.getElementById("layer2");
 let currentHeight = document.getElementById("layer1").offsetHeight;
-console.log("height = ", currentHeight);
 let staticContext = staticCanvas.getContext("2d");
 let dynamicContext = dynamicCanvas.getContext("2d");
 staticCanvas.width = 800;
@@ -28,11 +27,9 @@ let movement = {
 document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen;
 
 function onFullScreenEnter() {
-    console.log("Enter fullscreen initiated from iframe");
 };
 
 function onFullScreenExit() {
-    console.log("Exit fullscreen initiated from iframe");
 };
 
 // Note: FF nightly needs about:config full-screen-api.enabled set to true.
@@ -44,7 +41,6 @@ function enterFullscreen(id) {
     var onfullscreenchange = function (e) {
         var fullscreenElement = document.fullscreenElement || document.mozFullscreenElement || document.webkitFullscreenElement;
         var fullscreenEnabled = document.fullscreenEnabled || document.mozFullscreenEnabled || document.webkitFullscreenEnabled;
-        console.log('fullscreenEnabled = ' + fullscreenEnabled, ',  fullscreenElement = ', fullscreenElement, ',  e = ', e);
     }
     el.addEventListener("webkitfullscreenchange", onfullscreenchange);
     el.addEventListener("mozfullscreenchange", onfullscreenchange);
@@ -82,7 +78,6 @@ document.addEventListener('keydown', (event) => {
             movement.down = true;
             break;
     }
-    console.log("in key down");
 
 });
 
@@ -101,7 +96,6 @@ document.addEventListener('keyup', (event) => {
             movement.down = false;
             break;
     }
-    console.log("in key up");
 });
 
 
@@ -142,7 +136,6 @@ setInterval(() => {
 }, 1000 / 60);
 
 socket.on("render", (state) => {
-    console.log("Rendering...")
     dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height)
     var TO_RADIANS = Math.PI / 180;
 
@@ -221,7 +214,6 @@ socket.on("render", (state) => {
 });
 
 socket.on("render static", (map) => {
-    console.log("Rendering static...");
     let cellMatrix = map.cellMatrix;
     for (let i = 0; i < map.levelSize; i++) {
         for (let j = 0; j < map.levelSize; j++) {
