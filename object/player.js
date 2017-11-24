@@ -248,7 +248,7 @@ class Player {
 
 
     aimOnPlayer(player) {
-        let accuracy = Math.random();
+        let accuracy = Math.random() * 5;
         this.actions.mouse_X = player.posX + accuracy;
         this.actions.mouse_Y = player.posY + accuracy;
         // console.log(this.actions.mouse_X);
@@ -298,52 +298,13 @@ class Player {
 
     wanderToPlayer(player) {
         console.log("Distance between is", this.countDistToObject(player));
-        if ((this.countDistToObject(player) > (this.radius + 200)) && (this.health >= player.health)) {
+        let minDist = Math.random() * (this.radius + 200 - this.radius+player.radius) + this.radius+player.radius;
+        if ((this.countDistToObject(player) >= minDist ) && (this.health >= player.health)) {
             this.seek(player);
         } else {
             this.hide(player);
         }
     }
-
-//     private function wander() :Vector3D {
-//     // Calculate the circle center
-//     var circleCenter :Vector3D;
-//     circleCenter = velocity.clone();
-//     circleCenter.normalize();
-//     circleCenter.scaleBy(CIRCLE_DISTANCE);
-//     //
-//     // Calculate the displacement force
-//     var displacement :Vector3D;
-//     displacement = new Vector3D(0, -1);
-//     displacement.scaleBy(CIRCLE_RADIUS);
-//     //
-//     // Randomly change the vector direction
-//     // by making it change its current angle
-//     setAngle(displacement, wanderAngle);
-//     //
-//     // Change wanderAngle just a bit, so it
-//     // won't have the same value in the
-//     // next game frame.
-//     wanderAngle += Math.random() * ANGLE_CHANGE - ANGLE_CHANGE * .5;
-//     //
-//     // Finally calculate and return the wander force
-//     var wanderForce :Vector3D;
-//     wanderForce = circleCenter.add(displacement);
-//     return wanderForce;
-// }
-//
-//     public function setAngle(vector :Vector3D, value:Number):void {
-//     var len :Number = vector.length;
-//     vector.x = Math.cos(value) * len;
-//     vector.y = Math.sin(value) * len;
-//
-
-
-    // steering = wander()
-    // steering = truncate (steering, max_force)
-    // steering = steering / mass
-    // velocity = truncate (velocity + steering , max_speed)
-    // position = position + velocity
 
     countDistToObject(object) {
         let dx = this.posX - object.posX;
@@ -353,7 +314,7 @@ class Player {
     }
 
     //call from server
-    makeDesicions(players, powerups) {
+    makeDesicions(players, powerups, map) {
         this.setDeffaultActions();
         let minDist = 100000;
         let nearestPlayer = null;
@@ -369,10 +330,9 @@ class Player {
                 minDist = dist;
                 nearestPlayer = player;
             }
-            if (this.isInArea(this.botVision, player)) {
+            if (this.isInArea(this.botVision, player) && !this.isBehindWall(player, map)) {
                 onMisledPlayer = player;
                 this.aimOnPlayer(onMisledPlayer);
-                console.log("Fire from", this.id, "to", onMisledPlayer.id);
                 this.startFire();
                 break;
             }
@@ -393,8 +353,46 @@ class Player {
     }
 
 
+    isBehindWall(player, map) {
+        let destX = player.posX;
+        let destY = player.posY;
+        let angle = this.getAngle(destX, destY);
+        let intervals = 10;
+        // let step = this.countDistToObject(player)/intervals;
+        let dx = destX - this.posX;
+        let dy = destY - this.posY;
+        for (let steps = 0; steps < intervals; steps++) {
+            let xFactor = destX * Math.cos(angle) / (intervals - steps);
+            let yFactor = destY * Math.sin(angle) / (intervals - steps);
+            let testX = this.posX + xFactor;
+            let testY = this.posY + yFactor;
+            console.log("Own coords X:", this.posX, "Y:", this.posY);
+            console.log("Missle coords X:", xFactor, "Y:", yFactor);
+
+            console.log("Step:", steps, "Test coords X:", testX, "Y:", testY);
+            let cell = map.getCellByPoint(testX, testY);
+            if (cell && cell.isBlock) {
+                console.log("Behind the wall on step", steps, "coords X:", testX, "Y:", testY);
+                return true;
+            }
+        }
+        return false;
+    }
+
     getPower(powerupInArea) {
         this.seek(powerupInArea);
+    }
+
+    getAngle(destX, destY) {
+        let angle = Math.atan((destY - this.posY) / (destX - this.posX));
+        if ((destY - this.posY) < 0 && (destX - this.posX) < 0) {
+            angle += 2 * Math.acos(0)
+        }
+        if ((destY - this.posY) > 0 && (destX - this.posX) < 0) {
+            angle += 2 * Math.acos(0)
+        }
+        console.log(angle);
+        return angle;
     }
 }
 
