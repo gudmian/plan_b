@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 let http = require("http");
 let path = require("path");
 let express = require("express");
@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 
 let amountBots = 5;
 let botId = 0;
+let maxPowerups = 5;
 
 let players = {};
 let bullets = {};
@@ -50,7 +51,7 @@ mainSocket.on("connection", (socket) => {
     if (!map) {
         map = new Map(1);
         createBots();
-        botsTurn();
+        createPowerup();
     }
     socket.on("connect", () => {
         console.log("Connected player with id:", socket.id);
@@ -62,7 +63,6 @@ mainSocket.on("connection", (socket) => {
         // player.id = socket.id;
         players[socket.id] = player;
         scoreTable[socket.id] = 0;
-        createPowerup(socket.id);
         socket.emit("render static", map);
     });
 
@@ -114,6 +114,10 @@ mainSocket.on("connection", (socket) => {
             }
             if (data.mouse_down) {
                 fireIfPossible(socket.id);
+            }
+            if (data.mouse_wheel) {
+                console.log("Wheel ", (player.currentWeapon.type + data.mouse_wheel/120) % 3);
+                player.currentWeapon = player.weapon[Math.abs((data.mouse_wheel/120)) % 3];
             }
             for (let bulletId in bullets) {
                 for (var bullet of bullets[bulletId]) {
@@ -171,12 +175,14 @@ mainSocket.on("connection", (socket) => {
 });
 
 
-function createPowerup(id) {
+function createPowerup() {
     setInterval(() => {
-        let spawnCell = map.getEmptyCell();
-        let type = Math.floor(Math.random() * (7 - 1) + 1);
-        ;   //от 1 до 7 см. global.js
-        pwrups.push(new Powerup(type, spawnCell));
+        if(pwrups.length <= maxPowerups){
+            let spawnCell = map.getEmptyCell();
+            let type = Math.floor(Math.random() * (7 - 1) + 1);
+            ;   //от 1 до 7 см. global.js
+            pwrups.push(new Powerup(type, spawnCell));
+        }
     }, 10000);
 };
 
@@ -186,6 +192,7 @@ function createBots() {
         players[botId] = respawnPlayer(botId, true);
         botId++;
     }
+    botsTurn();
 }
 
 
@@ -252,11 +259,11 @@ function botsTurn() {
     for (let pId in players) {
         let player = players[pId];
         if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
-            console.log(player === null);
-            console.log(player === undefined);
-            console.log(player === {});
-            console.log(player instanceof Player);
-            console.log(typeof player);
+            // console.log(player === null);
+            // console.log(player === undefined);
+            // console.log(player === {});
+            // console.log(player instanceof Player);
+            // console.log(typeof player);
             if (player.isBot) {
                 player.makeDesicions(players);
                 let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
@@ -304,7 +311,7 @@ function botsTurn() {
                 }
             }
         } else {
-            players[pId] = respawnPlayer(pid, true);
+            players[pId] = respawnPlayer(pId, true);
         }
     }
 }

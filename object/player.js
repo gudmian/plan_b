@@ -201,7 +201,7 @@ class Player {
 
     //FOR AI
     startFire() {
-        console.log("Bot shoot");
+        // console.log("Bot shoot");
         this.actions.mouse_down = true;
     }
 
@@ -210,7 +210,7 @@ class Player {
     }
 
     startGoLeft() {
-        console.log("Bot moves left");
+        // console.log("Bot moves left");
         this.actions.left = true;
     }
 
@@ -219,7 +219,7 @@ class Player {
     }
 
     startGoRight() {
-        console.log("Bot moves right");
+        // console.log("Bot moves right");
         this.actions.right = true;
     }
 
@@ -229,7 +229,7 @@ class Player {
 
 
     startGoUp() {
-        console.log("Bot moves up");
+        // console.log("Bot moves up");
         this.actions.up = true;
     }
 
@@ -238,7 +238,7 @@ class Player {
     }
 
     startGoDown() {
-        console.log("Bot moves down");
+        // console.log("Bot moves down");
         this.actions.down = true;
     }
 

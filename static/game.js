@@ -116,6 +116,10 @@ function initMouseEvents() {
         movement.mouse_down = true;
     }, false);
 
+    dynamicCanvas.addEventListener("mousewheel", function (event) {
+        movement.mouse_wheel += event.wheelDelta;
+    }, false);
+
     dynamicCanvas.addEventListener("mousemove", function (event) {
         if (event.offsetX) {
             movement.mouse_X = event.offsetX * staticCanvas.width / currentHeight;
