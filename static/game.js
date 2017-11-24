@@ -155,8 +155,12 @@ setInterval(() => {
 }, 1000 / 60);
 
 socket.on("render", (state) => {
-	let tex_player = new Image;
+	let tex_player = new Image();
 	tex_player.src = "static/textures/players/apier.png";
+	let tex_player2 = new Image();
+	tex_player2.src = "static/textures/players/greenier.png";
+	let tex_player3 = new Image();
+	tex_player3.src = "static/textures/players/iceer.png";
 	let tex_weaponSimple = new Image();
 	tex_weaponSimple.src = "static/textures/weapons/pistol.png";
 	let tex_weaponMedium = new Image();
@@ -195,7 +199,9 @@ socket.on("render", (state) => {
                 if (player.currentWeapon.name == "simple") dynamicContext.drawImage(tex_weaponSimple, player.posX, player.posY, 20, 10);
                 if (player.currentWeapon.name == "medium") dynamicContext.drawImage(tex_weaponMedium, player.posX, player.posY, 30, 15);
                 if (player.currentWeapon.name == "strong") dynamicContext.drawImage(tex_weaponStrong, player.posX, player.posY, 40, 15);
-                dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
+                if (player.skin === 0) dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
+				if (player.skin === 1) dynamicContext.drawImage(tex_player2, player.posX - 15, player.posY - 15, 30, 30);
+				if (player.skin === 2) dynamicContext.drawImage(tex_player3, player.posX - 15, player.posY - 15, 30, 30);
                 dynamicContext.restore();
             }
         // }
@@ -216,12 +222,13 @@ socket.on("render", (state) => {
 				abilitiesContext.fillText(player.currentWeapon.name, 100, 40);
 				abilitiesContext.fillText("Patrons: ", 10, 60);
 				abilitiesContext.fillText(player.currentWeapon.patrons, 100, 60);
+				abilitiesContext.fillText("skin: ", 10, 80);
+				abilitiesContext.fillText(player.skin, 100, 80);
 				abilitiesContext.closePath();
 			}
 		}
 	}
 
-    
     function renderPowerups() {
         let pwrups = state.powerupInf;
 
