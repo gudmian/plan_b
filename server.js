@@ -172,7 +172,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
-            players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
+            players[socket.id] = respawnPlayer(socket.id, false);
         }
     });
 
