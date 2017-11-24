@@ -179,26 +179,40 @@ socket.on("render", (state) => {
 
     function renderPowerups() {
         let pwrups = state.powerupInf;
+
+        let tex_mediumWeapon = new Image();
+        tex_mediumWeapon.src = "static/textures/powerUp/mediumWeapon.png";
+		let tex_strongWeapon = new Image();
+		tex_strongWeapon.src = "static/textures/powerUp/strongWeapon.png";
+		let tex_patrons = new Image();
+		tex_patrons.src = "static/textures/powerUp/patronsWeapon.png";
+		let tex_health = new Image();
+		tex_health.src = "static/textures/powerUp/heart.png";
+		let tex_shield = new Image();
+		tex_shield.src = "static/textures/powerUp/shield.png";
+		let tex_speed = new Image();
+		tex_speed.src = "static/textures/powerUp/speed.png";
+		let tex_berserk = new Image();
+		tex_berserk.src = "static/textures/powerUp/berserk.png";;
+
         for (let pwrupId in pwrups){
+			dynamicContext.beginPath();
             switch (pwrups[pwrupId].type){
-                case 1: dynamicContext.fillStyle = "pink";
+                case 1: dynamicContext.drawImage(tex_mediumWeapon, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 2: dynamicContext.fillStyle = "purple";
+                case 2: dynamicContext.drawImage(tex_strongWeapon, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 3: dynamicContext.fillStyle = "blue";
+                case 3: dynamicContext.drawImage(tex_patrons, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 4: dynamicContext.fillStyle = "black";
+                case 4: dynamicContext.drawImage(tex_health, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 5: dynamicContext.fillStyle = "yellow";
+                case 5: dynamicContext.drawImage(tex_shield, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 6: dynamicContext.fillStyle = "red";
+                case 6: dynamicContext.drawImage(tex_speed, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 7: dynamicContext.fillStyle = "white";
+                case 7: dynamicContext.drawImage(tex_berserk, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
             }
-            dynamicContext.beginPath();
-            dynamicContext.arc(pwrups[pwrupId].posX, pwrups[pwrupId].posY, pwrups[pwrupId].radius, 0, 2 * Math.PI);
-            dynamicContext.fill();
             dynamicContext.closePath();
         }
     }
