@@ -135,16 +135,23 @@ setInterval(() => {
     socket.emit("change state", movement);
 }, 1000 / 60);
 
-socket.on("render", (state) => {
-    dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height)
-    var TO_RADIANS = Math.PI / 180;
 
+
+
+socket.on("render", (state) => {
+	let tex_player = new Image;
+	tex_player.src = "static/textures/players/apier.png";
+	var tex_playerLoaded = false;
+
+	// tex_player.onload = function(){
+	// 	tex_playerLoaded = true;
+	// };
+
+    dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height);
     function renderPlayers() {
-        //dynamicContext.fillStyle = "red";
+
         let players = state.playersInf;
-        tex_player = new Image;
-        tex_player.src = "static/textures/players/apier.png";
-        tex_player.onload = function () {
+        // tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
 
@@ -159,14 +166,15 @@ socket.on("render", (state) => {
 
                 let dx = player.posX;
                 let dy = player.posY;
-                dynamicContext.save();
+				dynamicContext.save();
                 dynamicContext.translate(dx, dy);
                 dynamicContext.rotate(2 * Math.PI + player.angle);
                 dynamicContext.translate(-dx, -dy);
-                dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
+				// if (tex_playerLoaded)
+				    dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
                 dynamicContext.restore();
             }
-        }
+        // }
     }
 
     function renderPowerups() {
