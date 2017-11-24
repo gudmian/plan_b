@@ -133,6 +133,7 @@ mainSocket.on("connection", (socket) => {
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
+                                console.log("Shield is", !players[id].isShield)
                                 if (bullet.collideWithPlayer(players[id]) && !players[id].isShield) {
                                     bulletDead(bulletId, bullet);
                                     players[id].health -= bullet.damage;
@@ -159,7 +160,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
-            players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
+            if(players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
         }
     });
 
@@ -252,11 +253,7 @@ function botsTurn() {
     for (let pId in players) {
         let player = players[pId];
         if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
-            console.log(player === null);
-            console.log(player === undefined);
-            console.log(player === {});
-            console.log(player instanceof Player);
-            console.log(typeof player);
+            //console.log(player);
             if (player.isBot) {
                 player.makeDesicions(players);
                 let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
