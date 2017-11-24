@@ -251,6 +251,11 @@ function botsTurn() {
     for (let pId in players) {
         let player = players[pId];
         if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
+            console.log(player === null);
+            console.log(player === undefined);
+            console.log(player === {});
+            console.log(player instanceof Player);
+            console.log(typeof player);
             if (player.isBot) {
                 player.makeDesicions(players);
                 let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
@@ -297,6 +302,8 @@ function botsTurn() {
                     fireIfPossible(pId);
                 }
             }
+        } else {
+            players[pId] = respawnPlayer(pid, true);
         }
     }
 }
