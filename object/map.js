@@ -19,13 +19,6 @@ class Map {
 
         this.cellMatrix = [];
 
-        var generationMatrix = Level.lvlgen[levelType - 1];
-
-        //lever borders
-        for (let i = 0; i < this.levelSize; i++) {
-
-        }
-
         var simplex = new Simplex(Math.random);
 
         for (var i = 0; i < this.levelSize; i++) {

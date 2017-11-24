@@ -9,6 +9,7 @@ let Map = require("./object/map");
 let Bullet = require("./object/bullet");
 let Powerup = require("./object/powerup");
 let WEAPON = require("./global").constants.WEAPON;
+let shortid = require("shortid");
 
 const app = express();
 const server = http.Server(app);
@@ -22,7 +23,9 @@ app.get("/", (req, res) => {
 });
 
 let amountBots = 5;
-let botId = 0;
+let maxBots = 15;
+let botCount = 0;
+let lastBotAction = 0;
 let maxPowerups = 5;
 
 let players = {};
@@ -109,6 +112,12 @@ mainSocket.on("connection", (socket) => {
                     }
                 }
             }
+            if (data.add) {
+                addBot();
+            }
+            if (data.del) {
+                removeBot();
+            }
             if (player.angle !== getMouseAngle(data, socket.id)) {
                 player.angle = getMouseAngle(data, socket.id);
             }
@@ -116,8 +125,8 @@ mainSocket.on("connection", (socket) => {
                 fireIfPossible(socket.id);
             }
             if (data.mouse_wheel) {
-                console.log("Wheel ", (player.currentWeapon.type + data.mouse_wheel/120) % 3);
-                player.currentWeapon = player.weapon[Math.abs((data.mouse_wheel/120)) % 3];
+                console.log("Wheel ", (player.currentWeapon.type + data.mouse_wheel / 120) % 3);
+                player.currentWeapon = player.weapon[Math.abs((data.mouse_wheel / 120)) % 3];
             }
             for (let bulletId in bullets) {
                 for (var bullet of bullets[bulletId]) {
@@ -177,7 +186,7 @@ mainSocket.on("connection", (socket) => {
 
 function createPowerup() {
     setInterval(() => {
-        if(pwrups.length <= maxPowerups){
+        if (pwrups.length <= maxPowerups) {
             let spawnCell = map.getEmptyCell();
             let type = Math.floor(Math.random() * (7 - 1) + 1);
             ;   //от 1 до 7 см. global.js
@@ -187,10 +196,34 @@ function createPowerup() {
 };
 
 
+function addBot() {
+    if (botCount < maxBots && Date.now() > lastBotAction + 300) {
+        let botId = shortid.generate();
+        players[botId] = respawnPlayer(botId, true);
+        lastBotAction = Date.now();
+        botCount++;
+    }
+}
+
+function removeBot() {
+    if (botCount > 0 && Date.now() > lastBotAction + 300) {
+        for (let id in players) {
+            if (players[id].isBot) {
+                delete players[id];
+                lastBotAction = Date.now();
+                botCount--;
+                return;
+            }
+        }
+    }
+}
+
 function createBots() {
     for (let i = 0; i < amountBots; i++) {
+        let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, true);
-        botId++;
+        lastBotAction = Date.now();
+        botCount++;
     }
     botsTurn();
 }

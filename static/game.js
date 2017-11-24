@@ -77,6 +77,12 @@ document.addEventListener('keydown', (event) => {
         case 83: // S
             movement.down = true;
             break;
+        case 107:   //+
+            movement.add = true;
+            break;
+        case 109:   //-
+            movement.del = true;
+            break;
     }
 
 });
@@ -94,6 +100,12 @@ document.addEventListener('keyup', (event) => {
             break;
         case 83: // S
             movement.down = false;
+            break;
+        case 107:   //+
+            movement.add = false;
+            break;
+        case 109:   //-
+            movement.del = false;
             break;
     }
 });
