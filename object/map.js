@@ -1,7 +1,8 @@
-"use strict"
+"use strict";
 
-var Level = require("../global").constants.LEVEL
+let Level = require("../global").constants.LEVEL;
 let Cell = require("./cell");
+let Simplex = require("simplex-noise");
 
 class Map {
     constructor(levelType) {
@@ -18,11 +19,21 @@ class Map {
 
         this.cellMatrix = [];
 
-        var generationMatrix = Level.lvlgen[levelType - 1]
+        var generationMatrix = Level.lvlgen[levelType - 1];
+
+        //lever borders
+        for (let i = 0; i < this.levelSize; i++) {
+
+        }
+
+        var simplex = new Simplex(Math.random);
+
         for (var i = 0; i < this.levelSize; i++) {
             this.cellMatrix [i] = [];
             for (var j = 0; j < this.levelSize; j++) {
-                this.cellMatrix [i][j] = new Cell(i, j, generationMatrix[i][j])
+                var isBorder = i === 0 || j === 0 || i === (this.levelSize - 1) || j === (this.levelSize - 1);
+                var noise = simplex.noise2D(i, j);
+                this.cellMatrix [i][j] = new Cell(i, j, isBorder || noise > 0.4);
             }
 
         }
