@@ -14,7 +14,7 @@ class Player {
         this.posX = x;
         this.posY = y;
         this.isBot = isBot;
-        this.botVision = 50;
+        this.botVision = 250+this.radius;
         this.angle = 0;
         this.health = 100;
         this.cell = cell;
@@ -29,7 +29,7 @@ class Player {
             mouse_Y: 0,
             mouse_down: false,
             mouse_wheel: 0,
-            up: false,
+            up: true,
             down: false,
             left: false,
             right: false
@@ -201,6 +201,7 @@ class Player {
 
     //FOR AI
     startFire() {
+        console.log("Bot shoot");
         this.actions.mouse_down = true;
     }
 
@@ -209,6 +210,7 @@ class Player {
     }
 
     startGoLeft() {
+        console.log("Bot moves left");
         this.actions.left = true;
     }
 
@@ -217,6 +219,7 @@ class Player {
     }
 
     startGoRight() {
+        console.log("Bot moves right");
         this.actions.right = true;
     }
 
@@ -226,6 +229,7 @@ class Player {
 
 
     startGoUp() {
+        console.log("Bot moves up");
         this.actions.up = true;
     }
 
@@ -234,6 +238,7 @@ class Player {
     }
 
     startGoDown() {
+        console.log("Bot moves down");
         this.actions.down = true;
     }
 
@@ -292,7 +297,7 @@ class Player {
     }
 
     wanderToPlayer(player) {
-        if ((this.countDistToPlayer(player) > (this.radius+20)) && (this.health > 50)) {
+        if ((this.countDistToPlayer(player) > (this.radius+20)) && (this.health >= player.health)) {
            this.seek(player);
         } else {
             this.hide(player);

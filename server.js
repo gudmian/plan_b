@@ -50,6 +50,7 @@ mainSocket.on("connection", (socket) => {
     if (!map) {
         map = new Map(1);
         createBots();
+        botsTurn();
     }
     socket.on("connect", () => {
         console.log("Connected player with id:", socket.id);
@@ -176,7 +177,7 @@ function createPowerup(id) {
         let type = Math.floor(Math.random() * (7 - 1) + 1);
         ;   //от 1 до 7 см. global.js
         pwrups.push(new Powerup(type, spawnCell));
-    }, 2000);
+    }, 10000);
 };
 
 
