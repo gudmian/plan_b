@@ -23,6 +23,7 @@ class Player {
         this.powerup;
         this.isShield = false;
         this.velocity = 5;
+        this.skin = randomInteger(0,2);
 
         this.actions = {
             mouse_X: 0,
@@ -304,7 +305,6 @@ class Player {
         }
     }
 
-
 //     private function wander() :Vector3D {
 //     // Calculate the circle center
 //     var circleCenter :Vector3D;
@@ -384,6 +384,12 @@ class Player {
     }
 
 
+}
+
+function randomInteger(min, max) {
+	var rand = min - 0.5 + Math.random() * (max - min + 1)
+	rand = Math.round(rand);
+	return rand;
 }
 
 module.exports = Player;
