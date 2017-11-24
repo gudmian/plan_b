@@ -98,6 +98,17 @@ input[type="checkbox"]:checked + label span
     top: 65px;
     z-index: 1;
 }
+#layer3 {
+    width: 20vh;
+    height: 20vh;
+    background: black;
+    position: absolute;
+    left: 50%;
+    margin-left: -36%;
+    top: 65px;
+    z-index: 2;
+}
+
 
 
 

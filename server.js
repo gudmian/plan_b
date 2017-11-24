@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 let http = require("http");
 let path = require("path");
 let express = require("express");
@@ -9,6 +9,7 @@ let Map = require("./object/map");
 let Bullet = require("./object/bullet");
 let Powerup = require("./object/powerup");
 let WEAPON = require("./global").constants.WEAPON;
+let shortid = require("shortid");
 
 const app = express();
 const server = http.Server(app);
@@ -22,7 +23,10 @@ app.get("/", (req, res) => {
 });
 
 let amountBots = 5;
-let botId = 0;
+let maxBots = 15;
+let botCount = 0;
+let lastBotAction = 0;
+let maxPowerups = 5;
 
 let players = {};
 let bullets = {};
@@ -50,7 +54,7 @@ mainSocket.on("connection", (socket) => {
     if (!map) {
         map = new Map(1);
         createBots();
-        botsTurn();
+        createPowerup();
     }
     socket.on("connect", () => {
         console.log("Connected player with id:", socket.id);
@@ -62,7 +66,6 @@ mainSocket.on("connection", (socket) => {
         // player.id = socket.id;
         players[socket.id] = player;
         scoreTable[socket.id] = 0;
-        createPowerup(socket.id);
         socket.emit("render static", map);
     });
 
@@ -109,11 +112,21 @@ mainSocket.on("connection", (socket) => {
                     }
                 }
             }
+            if (data.add) {
+                addBot();
+            }
+            if (data.del) {
+                removeBot();
+            }
             if (player.angle !== getMouseAngle(data, socket.id)) {
                 player.angle = getMouseAngle(data, socket.id);
             }
             if (data.mouse_down) {
                 fireIfPossible(socket.id);
+            }
+            if (data.mouse_wheel) {
+                console.log("Wheel ", (player.currentWeapon.type + data.mouse_wheel / 120) % 3);
+                player.currentWeapon = player.weapon[Math.abs((data.mouse_wheel / 120)) % 3];
             }
             for (let bulletId in bullets) {
                 for (var bullet of bullets[bulletId]) {
@@ -160,6 +173,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
+            players[socket.id] = respawnPlayer(socket.id, false);
             if(players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
         }
     });
@@ -172,21 +186,48 @@ mainSocket.on("connection", (socket) => {
 });
 
 
-function createPowerup(id) {
+function createPowerup() {
     setInterval(() => {
-        let spawnCell = map.getEmptyCell();
-        let type = Math.floor(Math.random() * (7 - 1) + 1);
-        ;   //от 1 до 7 см. global.js
-        pwrups.push(new Powerup(type, spawnCell));
+        if (pwrups.length <= maxPowerups) {
+            let spawnCell = map.getEmptyCell();
+            let type = Math.floor(Math.random() * (7 - 1) + 1);
+            ;   //от 1 до 7 см. global.js
+            pwrups.push(new Powerup(type, spawnCell));
+        }
     }, 10000);
 };
 
 
+function addBot() {
+    if (botCount < maxBots && Date.now() > lastBotAction + 300) {
+        let botId = shortid.generate();
+        players[botId] = respawnPlayer(botId, true);
+        lastBotAction = Date.now();
+        botCount++;
+    }
+}
+
+function removeBot() {
+    if (botCount > 0 && Date.now() > lastBotAction + 300) {
+        for (let id in players) {
+            if (players[id].isBot) {
+                delete players[id];
+                lastBotAction = Date.now();
+                botCount--;
+                return;
+            }
+        }
+    }
+}
+
 function createBots() {
     for (let i = 0; i < amountBots; i++) {
+        let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, true);
-        botId++;
+        lastBotAction = Date.now();
+        botCount++;
     }
+    botsTurn();
 }
 
 
@@ -253,7 +294,11 @@ function botsTurn() {
     for (let pId in players) {
         let player = players[pId];
         if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
-            //console.log(player);
+            // console.log(player === null);
+            // console.log(player === undefined);
+            // console.log(player === {});
+            // console.log(player instanceof Player);
+            // console.log(typeof player);
             if (player.isBot) {
                 player.makeDesicions(players);
                 let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
@@ -301,7 +346,7 @@ function botsTurn() {
                 }
             }
         } else {
-            players[pId] = respawnPlayer(pid, true);
+            players[pId] = respawnPlayer(pId, true);
         }
     }
 }

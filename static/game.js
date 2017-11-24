@@ -3,13 +3,16 @@
 let socket = io();
 const staticCanvas = document.getElementById("layer1");
 const dynamicCanvas = document.getElementById("layer2");
+const abilitiesCanvas = document.getElementById("layer3");
 let currentHeight = document.getElementById("layer1").offsetHeight;
 let staticContext = staticCanvas.getContext("2d");
 let dynamicContext = dynamicCanvas.getContext("2d");
+let abilitiesContext = abilitiesCanvas.getContext("2d");
 staticCanvas.width = 800;
 dynamicCanvas.width = 800;
 staticCanvas.height = 800;
 dynamicCanvas.height = 800;
+
 
 socket.emit("new player");
 
@@ -77,6 +80,12 @@ document.addEventListener('keydown', (event) => {
         case 83: // S
             movement.down = true;
             break;
+        case 107:   //+
+            movement.add = true;
+            break;
+        case 109:   //-
+            movement.del = true;
+            break;
     }
 
 });
@@ -94,6 +103,12 @@ document.addEventListener('keyup', (event) => {
             break;
         case 83: // S
             movement.down = false;
+            break;
+        case 107:   //+
+            movement.add = false;
+            break;
+        case 109:   //-
+            movement.del = false;
             break;
     }
 });
@@ -116,6 +131,10 @@ function initMouseEvents() {
         movement.mouse_down = true;
     }, false);
 
+    dynamicCanvas.addEventListener("mousewheel", function (event) {
+        movement.mouse_wheel += event.wheelDelta;
+    }, false);
+
     dynamicCanvas.addEventListener("mousemove", function (event) {
         if (event.offsetX) {
             movement.mouse_X = event.offsetX * staticCanvas.width / currentHeight;
@@ -135,14 +154,17 @@ setInterval(() => {
     socket.emit("change state", movement);
 }, 1000 / 60);
 
-
-
-
 socket.on("render", (state) => {
 	let tex_player = new Image;
 	tex_player.src = "static/textures/players/apier.png";
-	var tex_playerLoaded = false;
+	let tex_weaponSimple = new Image();
+	tex_weaponSimple.src = "static/textures/weapons/pistol.png";
+	let tex_weaponMedium = new Image();
+	tex_weaponMedium.src = "static/textures/weapons/medium.png";
+	let tex_weaponStrong = new Image();
+	tex_weaponStrong.src = "static/textures/weapons/strong.png";
 
+	// var tex_playerLoaded = false;
 	// tex_player.onload = function(){
 	// 	tex_playerLoaded = true;
 	// };
@@ -154,7 +176,6 @@ socket.on("render", (state) => {
         // tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
-
                 if (player.health < 30) {
                     dynamicContext.fillStyle = "red";
                 }
@@ -171,12 +192,36 @@ socket.on("render", (state) => {
                 dynamicContext.rotate(2 * Math.PI + player.angle);
                 dynamicContext.translate(-dx, -dy);
 				// if (tex_playerLoaded)
-				    dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
+                if (player.currentWeapon.name == "simple") dynamicContext.drawImage(tex_weaponSimple, player.posX, player.posY, 20, 10);
+                if (player.currentWeapon.name == "medium") dynamicContext.drawImage(tex_weaponMedium, player.posX, player.posY, 30, 15);
+                if (player.currentWeapon.name == "strong") dynamicContext.drawImage(tex_weaponStrong, player.posX, player.posY, 40, 15);
+                dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
                 dynamicContext.restore();
             }
         // }
     }
 
+	abilitiesContext.clearRect(0, 0, 800, 800);
+	function renderWeaponName() {
+		let players = state.playersInf;
+		for (let id in players) {
+			let player = players[id];
+
+			if (socket.id == id) {
+			    abilitiesContext.beginPath();
+				abilitiesContext.fillStyle = "red";
+				abilitiesContext.font = "bold 14pt Arial";
+				abilitiesContext.fillText(player.id, 50, 20);
+				abilitiesContext.fillText("Weapon: ", 10, 40);
+				abilitiesContext.fillText(player.currentWeapon.name, 100, 40);
+				abilitiesContext.fillText("Patrons: ", 10, 60);
+				abilitiesContext.fillText(player.currentWeapon.patrons, 100, 60);
+				abilitiesContext.closePath();
+			}
+		}
+	}
+
+    
     function renderPowerups() {
         let pwrups = state.powerupInf;
 
@@ -193,7 +238,7 @@ socket.on("render", (state) => {
 		let tex_speed = new Image();
 		tex_speed.src = "static/textures/powerUp/speed.png";
 		let tex_berserk = new Image();
-		tex_berserk.src = "static/textures/powerUp/berserk.png";;
+		tex_berserk.src = "static/textures/powerUp/berserk.png";
 
         for (let pwrupId in pwrups){
 			dynamicContext.beginPath();
@@ -232,6 +277,7 @@ socket.on("render", (state) => {
 
     renderPlayers();
     renderBullets();
+    renderWeaponName();
     renderPowerups();
 });
 
