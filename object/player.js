@@ -14,7 +14,7 @@ class Player {
         this.posX = x;
         this.posY = y;
         this.isBot = isBot;
-        this.botVision = 250;
+        this.botVision = 400;
         this.angle = 0;
         this.health = 100;
         this.cell = cell;
@@ -23,7 +23,7 @@ class Player {
         this.powerup;
         this.isShield = false;
         this.velocity = 5;
-        this.skin = randomInteger(0,2);
+        this.skin = randomInteger(0, 2);
 
         this.actions = {
             mouse_X: 0,
@@ -100,7 +100,7 @@ class Player {
     }
 
     isInArea(area, player) {
-        return this.countDistToPlayer(player) < this.botVision;
+        return this.countDistToObject(player) < this.botVision;
     }
 
     setCustomWeapon(weapon) {
@@ -262,7 +262,7 @@ class Player {
         this.stopGoRight();
     }
 
-    seek(player){
+    seek(player) {
         let distX = player.posX;
         let distY = player.posY;
         if (this.posX < distX) {
@@ -279,7 +279,7 @@ class Player {
         }
     }
 
-    hide(player){
+    hide(player) {
         let distX = player.posX;
         let distY = player.posY;
         if (this.posX > distX) {
@@ -297,9 +297,9 @@ class Player {
     }
 
     wanderToPlayer(player) {
-
-        if ((this.countDistToPlayer(player) > (this.radius+20)) && (this.health >= player.health)) {
-           this.seek(player);
+        console.log("Distance between is", this.countDistToObject(player));
+        if ((this.countDistToObject(player) > (this.radius + 200)) && (this.health >= player.health)) {
+            this.seek(player);
         } else {
             this.hide(player);
         }
@@ -345,24 +345,25 @@ class Player {
     // velocity = truncate (velocity + steering , max_speed)
     // position = position + velocity
 
-    countDistToPlayer(player) {
-        let dx = this.posX - player.posX;
-        let dy = this.posY - player.posY;
+    countDistToObject(object) {
+        let dx = this.posX - object.posX;
+        let dy = this.posY - object.posY;
         let result = Math.sqrt(dx * dx + dy * dy);
         return result;
     }
 
     //call from server
-    makeDesicions(players) {
+    makeDesicions(players, powerups) {
         this.setDeffaultActions();
         let minDist = 100000;
         let nearestPlayer = null;
+        let powerupInArea = null;
         let onMisledPlayer = null;
 
         for (let playerId in players) {
             let player = players[playerId];
             if (player.id === this.id) continue;
-            let dist = this.countDistToPlayer(player);
+            let dist = this.countDistToObject(player);
             // console.log("Dist from", this.id, ":", dist, "Min dist to", player.id, ":", minDist)
             if (dist < minDist) {
                 minDist = dist;
@@ -376,20 +377,31 @@ class Player {
                 break;
             }
         }
-        if(onMisledPlayer === null) this.stopFire();
-        if (nearestPlayer !== null) {
+        for (let pws of powerups) {
+            if (this.countDistToObject(pws) < this.botVision) {
+                powerupInArea = pws;
+                break;
+            }
+        }
+        if (onMisledPlayer === null) this.stopFire();
+        if (powerupInArea !== null) {
+            this.getPower(powerupInArea);
+        } else if (nearestPlayer !== null) {
             // console.log(this.id, " follows by", nearestPlayer.id);
             this.wanderToPlayer(nearestPlayer);
         }
     }
 
 
+    getPower(powerupInArea) {
+        this.seek(powerupInArea);
+    }
 }
 
 function randomInteger(min, max) {
-	var rand = min - 0.5 + Math.random() * (max - min + 1)
-	rand = Math.round(rand);
-	return rand;
+    var rand = min - 0.5 + Math.random() * (max - min + 1)
+    rand = Math.round(rand);
+    return rand;
 }
 
 module.exports = Player;

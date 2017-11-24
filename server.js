@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
     res.sendfile("./static/index.html");
 });
 
-let amountBots = 5;
+let amountBots = 1;
 let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
@@ -312,7 +312,7 @@ function botsTurn() {
             // console.log(player instanceof Player);
             // console.log(typeof player);
             if (player.isBot) {
-                player.makeDesicions(players);
+                player.makeDesicions(players, pwrups);
                 let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
                 let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
                 let topCell = map.getCellByPoint(player.posX, player.posY - 20)
@@ -356,6 +356,17 @@ function botsTurn() {
                 if (player.actions.mouse_down) {
                     fireIfPossible(pId);
                 }
+
+                for (let pwrup of pwrups) {
+                    let index = pwrups.indexOf(pwrup);
+                    if (pwrup.isCollideWithPlayer(player)) {
+                        player.setPower(pwrup);
+                        if (index > -1) {
+                            pwrups.splice(index, 1);
+                        }
+                    }
+                }
+
             }
         } else {
             players[pId] = respawnPlayer(pId, true);
