@@ -13,7 +13,6 @@ dynamicCanvas.width = 800;
 staticCanvas.height = 800;
 dynamicCanvas.height = 800;
 
-
 socket.emit("new player");
 
 let movement = {
@@ -229,6 +228,7 @@ socket.on("render", (state) => {
 		}
 	}
 
+    
     function renderPowerups() {
         let pwrups = state.powerupInf;
 

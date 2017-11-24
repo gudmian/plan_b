@@ -163,9 +163,8 @@ class Player {
                 break;
             case pwr.SHIELD:
                 if (!this.isShield) {
-                    //DO NOTHING
-                } else {
                     this.isShield = true;
+                    //DO NOTHING
                 }
                 console.log("Powerup in use: SHIELD");
                 break;
@@ -252,8 +251,8 @@ class Player {
         let accuracy = Math.random();
         this.actions.mouse_X = player.posX + accuracy;
         this.actions.mouse_Y = player.posY + accuracy;
-        console.log(this.actions.mouse_X);
-        console.log(this.actions.mouse_Y);
+        // console.log(this.actions.mouse_X);
+        // console.log(this.actions.mouse_Y);
     }
 
     setDeffaultActions() {
@@ -369,7 +368,7 @@ class Player {
                 nearestPlayer = player;
             }
             if (this.isInArea(this.botVision, player)) {
-                console.log("Fire on player", playerId);
+                // console.log("Fire on player", playerId);
                 onMisledPlayer = player;
                 this.aimOnPlayer(onMisledPlayer);
                 this.startFire();

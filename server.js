@@ -31,6 +31,8 @@ let maxPowerups = 5;
 let players = {};
 let bullets = {};
 let pwrups = [];
+let cameraX = 0;
+let cameraY = 0;
 
 let scoreTable = {};
 
@@ -40,7 +42,9 @@ let renderData = {
     playersInf: players,
     bulletsInf: bullets,
     powerupInf: pwrups,
-    scores: scoreTable
+    scores: scoreTable,
+    cameraX: cameraX,
+    cameraY: cameraY
 };
 
 for (let player in players) {
@@ -125,7 +129,6 @@ mainSocket.on("connection", (socket) => {
                 fireIfPossible(socket.id);
             }
             if (data.mouse_wheel) {
-                console.log("Wheel ", (player.currentWeapon.type + data.mouse_wheel / 120) % 3);
                 player.currentWeapon = player.weapon[Math.abs((data.mouse_wheel / 120)) % 3];
             }
             for (let bulletId in bullets) {
@@ -146,14 +149,16 @@ mainSocket.on("connection", (socket) => {
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
-                                if (bullet.collideWithPlayer(players[id]) && !players[id].isShield) {
+                                if (bullet.collideWithPlayer(players[id])) {
                                     bulletDead(bulletId, bullet);
-                                    players[id].health -= bullet.damage;
-                                    if (players[id].health <= 0) {
-                                        // setTimeout(() => {
-                                        scoreTable[bullet.owner] += 100;
-                                        players[id] = respawnPlayer(id, players[id].isBot);
-                                        // }, 2000);
+                                    if(!players[id].isShield){
+                                        players[id].health -= bullet.damage;
+                                        if (players[id].health <= 0) {
+                                            // setTimeout(() => {
+                                            scoreTable[bullet.owner] += 100;
+                                            players[id] = respawnPlayer(id, players[id].isBot);
+                                            // }, 2000);
+                                        }
                                     }
                                 }
                             }
@@ -171,6 +176,8 @@ mainSocket.on("connection", (socket) => {
                     }
                 }
             }
+
+            changeCameraPosition(player);
         } else {
             players[socket.id] = respawnPlayer(socket.id, false);
         }
@@ -183,6 +190,13 @@ mainSocket.on("connection", (socket) => {
 
 });
 
+function changeCameraPosition(player) {
+    cameraX = (player.posX-250) > 0 ? (player.posX-250) : 0;
+    cameraY = (player.posY-250) > 0 ? (player.posY-250) : 0;
+
+    // cameraX = (player.posX+250) < map.levelSize * player.cell.size ? (player.posX-250) : cameraX;
+    // cameraY = (player.posY+250) < map.levelSize * player.cell.size ? (player.posY-250) : cameraY;
+}
 
 function createPowerup() {
     setInterval(() => {
@@ -249,10 +263,10 @@ function isCollideWithOther(player) {
 function fireIfPossible(id) {
     if (players[id] === undefined) return;
     let wpn = players[id].currentWeapon;
-    while (wpn.type > WEAPON.SIMPLE && wpn.patrons === 0) {
-        players[id].currentWeapon = players[id].weapon[wpn.type - 1];
-        wpn = players[id].currentWeapon;
-    }
+    // while (wpn.type > WEAPON.SIMPLE && wpn.patrons === 0) {
+    //     players[id].currentWeapon = players[id].weapon[wpn.type - 1];
+    //     wpn = players[id].currentWeapon;
+    // }
     if (wpn.patrons > 0) {
         if (wpn.lastFire === 0) {
             wpn.lastFire = Date.now();
