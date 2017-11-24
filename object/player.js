@@ -14,7 +14,7 @@ class Player {
         this.posX = x;
         this.posY = y;
         this.isBot = isBot;
-        this.botVision = 250+this.radius;
+        this.botVision = 250;
         this.angle = 0;
         this.health = 100;
         this.cell = cell;
@@ -100,7 +100,7 @@ class Player {
     }
 
     isInArea(area, player) {
-        return this.countDistToPlayer(player) < 50;
+        return this.countDistToPlayer(player) < this.botVision;
     }
 
     setCustomWeapon(weapon) {
@@ -298,6 +298,7 @@ class Player {
     }
 
     wanderToPlayer(player) {
+
         if ((this.countDistToPlayer(player) > (this.radius+20)) && (this.health >= player.health)) {
            this.seek(player);
         } else {
@@ -369,9 +370,9 @@ class Player {
                 nearestPlayer = player;
             }
             if (this.isInArea(this.botVision, player)) {
-                // console.log("Fire on player", playerId);
                 onMisledPlayer = player;
                 this.aimOnPlayer(onMisledPlayer);
+                console.log("Fire from", this.id, "to", onMisledPlayer.id);
                 this.startFire();
                 break;
             }

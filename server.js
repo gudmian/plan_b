@@ -146,7 +146,6 @@ mainSocket.on("connection", (socket) => {
                         } else {
                             for (let id in players) {
                                 if (bullet.owner === id) continue;
-                                console.log("Shield is", !players[id].isShield)
                                 if (bullet.collideWithPlayer(players[id]) && !players[id].isShield) {
                                     bulletDead(bulletId, bullet);
                                     players[id].health -= bullet.damage;
@@ -173,7 +172,6 @@ mainSocket.on("connection", (socket) => {
                 }
             }
         } else {
-            players[socket.id] = respawnPlayer(socket.id, false);
             if(players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
         }
     });
