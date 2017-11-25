@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
     res.sendfile("./static/index.html");
 });
 
-let amountBots = 5;
+let amountBots = 1;
 let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
