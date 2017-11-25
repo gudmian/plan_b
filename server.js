@@ -31,8 +31,6 @@ let maxPowerups = 5;
 let players = {};
 let bullets = {};
 let pwrups = [];
-let cameraX = 0;
-let cameraY = 0;
 
 let scoreTable = {};
 
@@ -42,9 +40,7 @@ let renderData = {
     playersInf: players,
     bulletsInf: bullets,
     powerupInf: pwrups,
-    scores: scoreTable,
-    cameraX: cameraX,
-    cameraY: cameraY
+    scores: scoreTable
 };
 
 for (let player in players) {
@@ -151,7 +147,7 @@ mainSocket.on("connection", (socket) => {
                                 if (bullet.owner === id) continue;
                                 if (bullet.collideWithPlayer(players[id])) {
                                     bulletDead(bulletId, bullet);
-                                    if(!players[id].isShield){
+                                    if (!players[id].isShield) {
                                         players[id].health -= bullet.damage;
                                         if (players[id].health <= 0) {
                                             // setTimeout(() => {
@@ -177,7 +173,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
 
-            changeCameraPosition(player);
+            // changeCameraPosition(player);
         } else {
             if(players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
         }
@@ -190,13 +186,6 @@ mainSocket.on("connection", (socket) => {
 
 });
 
-function changeCameraPosition(player) {
-    cameraX = (player.posX-250) > 0 ? (player.posX-250) : 0;
-    cameraY = (player.posY-250) > 0 ? (player.posY-250) : 0;
-
-    // cameraX = (player.posX+250) < map.levelSize * player.cell.size ? (player.posX-250) : cameraX;
-    // cameraY = (player.posY+250) < map.levelSize * player.cell.size ? (player.posY-250) : cameraY;
-}
 
 function createPowerup() {
     setInterval(() => {

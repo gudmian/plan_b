@@ -153,6 +153,26 @@ setInterval(() => {
     socket.emit("change state", movement);
 }, 1000 / 60);
 
+
+//vision parameters
+let visionWidth = 500;
+let visionHeigth = 500;
+
+function isInVision(x, y, player) {
+    if (player !== undefined){
+        if (x > (player.posX - visionWidth / 2) && x < (player.posX + visionWidth / 2) &&
+            y > (player.posY - visionHeigth / 2) && y < (player.posY + visionHeigth / 2)) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    else{
+        return false;
+    }
+}
+
 socket.on("render", (state) => {
 	let tex_player = new Image();
 	tex_player.src = "static/textures/players/apier.png";
@@ -179,29 +199,31 @@ socket.on("render", (state) => {
         // tex_player.onload = function () {
             for (let id in players) {
                 let player = players[id];
-                if (player.health < 30) {
-                    dynamicContext.fillStyle = "red";
-                }
-                else {
-                    dynamicContext.fillStyle = "#00F";
-                }
-                dynamicContext.font = "italic 10pt Arial";
-                dynamicContext.fillText(player.health, player.posX - 15, player.posY - 20);
+                if (isInVision(player.posX, player.posY, players[socket.id])){
+                    if (player.health < 30) {
+                        dynamicContext.fillStyle = "red";
+                    }
+                    else {
+                        dynamicContext.fillStyle = "#00F";
+                    }
+                    dynamicContext.font = "italic 10pt Arial";
+                    dynamicContext.fillText(player.health, player.posX - 15, player.posY - 20);
 
-                let dx = player.posX;
-                let dy = player.posY;
-				dynamicContext.save();
-                dynamicContext.translate(dx, dy);
-                dynamicContext.rotate(2 * Math.PI + player.angle);
-                dynamicContext.translate(-dx, -dy);
-				// if (tex_playerLoaded)
-                if (player.currentWeapon.name == "simple") dynamicContext.drawImage(tex_weaponSimple, player.posX, player.posY, 20, 10);
-                if (player.currentWeapon.name == "medium") dynamicContext.drawImage(tex_weaponMedium, player.posX, player.posY, 30, 15);
-                if (player.currentWeapon.name == "strong") dynamicContext.drawImage(tex_weaponStrong, player.posX, player.posY, 40, 15);
-                if (player.skin === 0) dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
-				if (player.skin === 1) dynamicContext.drawImage(tex_player2, player.posX - 15, player.posY - 15, 30, 30);
-				if (player.skin === 2) dynamicContext.drawImage(tex_player3, player.posX - 15, player.posY - 15, 30, 30);
-                dynamicContext.restore();
+                    let dx = player.posX;
+                    let dy = player.posY;
+                    dynamicContext.save();
+                    dynamicContext.translate(dx, dy);
+                    dynamicContext.rotate(2 * Math.PI + player.angle);
+                    dynamicContext.translate(-dx, -dy);
+                    // if (tex_playerLoaded)
+                    if (player.currentWeapon.name == "simple") dynamicContext.drawImage(tex_weaponSimple, player.posX, player.posY, 20, 10);
+                    if (player.currentWeapon.name == "medium") dynamicContext.drawImage(tex_weaponMedium, player.posX, player.posY, 30, 15);
+                    if (player.currentWeapon.name == "strong") dynamicContext.drawImage(tex_weaponStrong, player.posX, player.posY, 40, 15);
+                    if (player.skin === 0) dynamicContext.drawImage(tex_player, player.posX - 15, player.posY - 15, 30, 30);
+                    if (player.skin === 1) dynamicContext.drawImage(tex_player2, player.posX - 15, player.posY - 15, 30, 30);
+                    if (player.skin === 2) dynamicContext.drawImage(tex_player3, player.posX - 15, player.posY - 15, 30, 30);
+                    dynamicContext.restore();
+                }
             }
         // }
     }
@@ -248,24 +270,26 @@ socket.on("render", (state) => {
 		tex_berserk.src = "static/textures/powerUp/berserk.png";
 
         for (let pwrupId in pwrups){
-			dynamicContext.beginPath();
-            switch (pwrups[pwrupId].type){
-                case 1: dynamicContext.drawImage(tex_mediumWeapon, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+            if (isInVision(pwrups[pwrupId].posX, pwrups[pwrupId].posY, state.playersInf[socket.id])) {
+                dynamicContext.beginPath();
+                switch (pwrups[pwrupId].type){
+                    case 1: dynamicContext.drawImage(tex_mediumWeapon, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 2: dynamicContext.drawImage(tex_strongWeapon, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+                    case 2: dynamicContext.drawImage(tex_strongWeapon, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 3: dynamicContext.drawImage(tex_patrons, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+                    case 3: dynamicContext.drawImage(tex_patrons, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 4: dynamicContext.drawImage(tex_health, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+                    case 4: dynamicContext.drawImage(tex_health, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 5: dynamicContext.drawImage(tex_shield, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+                    case 5: dynamicContext.drawImage(tex_shield, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 6: dynamicContext.drawImage(tex_speed, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+                    case 6: dynamicContext.drawImage(tex_speed, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
-                case 7: dynamicContext.drawImage(tex_berserk, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
+                    case 7: dynamicContext.drawImage(tex_berserk, pwrups[pwrupId].posX - 15, pwrups[pwrupId].posY - 15, 30, 30);
                         break;
+                }
+                dynamicContext.closePath();
             }
-            dynamicContext.closePath();
         }
     }
 
@@ -274,10 +298,12 @@ socket.on("render", (state) => {
         let bullets = state.bulletsInf;
         for (let id in bullets) {
             for (let bullet of bullets[id]) {
-                dynamicContext.beginPath();
-                dynamicContext.arc(bullet.posX, bullet.posY, bullet.radius, 0, 2 * Math.PI);
-                dynamicContext.fill();
-                dynamicContext.closePath();
+                if (isInVision(bullet.posX, bullet.posY, state.playersInf[socket.id])) {
+                    dynamicContext.beginPath();
+                    dynamicContext.arc(bullet.posX, bullet.posY, bullet.radius, 0, 2 * Math.PI);
+                    dynamicContext.fill();
+                    dynamicContext.closePath();
+                }
             }
         }
     }

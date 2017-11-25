@@ -299,7 +299,7 @@ class Player {
     }
 
     wanderToPlayer(player) {
-        console.log("Distance between is", this.countDistToObject(player));
+        // console.log("Distance between is", this.countDistToObject(player));
         let minDist = Math.random() * (this.radius + 200 - this.radius + player.radius) + this.radius + player.radius;
         if ((this.countDistToObject(player) >= minDist ) && (this.health >= player.health)) {
             this.seek(player);
@@ -422,13 +422,13 @@ class Player {
             let yFactor = destY * Math.sin(angle) / (intervals - steps);
             let testX = this.posX + xFactor;
             let testY = this.posY + yFactor;
-            console.log("Own coords X:", this.posX, "Y:", this.posY);
-            console.log("Missle coords X:", xFactor, "Y:", yFactor);
+            // console.log("Own coords X:", this.posX, "Y:", this.posY);
+            // console.log("Missle coords X:", xFactor, "Y:", yFactor);
 
-            console.log("Step:", steps, "Test coords X:", testX, "Y:", testY);
+            // console.log("Step:", steps, "Test coords X:", testX, "Y:", testY);
             let cell = map.getCellByPoint(testX, testY);
             if (cell && cell.isBlock) {
-                console.log("Behind the wall on step", steps, "coords X:", testX, "Y:", testY);
+                // console.log("Behind the wall on step", steps, "coords X:", testX, "Y:", testY);
                 return true;
             }
         }
@@ -447,7 +447,7 @@ class Player {
         if ((destY - this.posY) > 0 && (destX - this.posX) < 0) {
             angle += 2 * Math.acos(0)
         }
-        console.log(angle);
+        // console.log(angle);
         return angle;
     }
 }
