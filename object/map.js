@@ -57,7 +57,6 @@ class Map {
         let i = Math.floor(x / cellSize);
         let j = Math.floor(y / cellSize);
         if (i < this.levelSize && j < this.levelSize) {
-            //console.log("Map returned cell: ", i, "  ", j )
             return this.cellMatrix[i][j];
         }
         else {

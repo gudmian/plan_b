@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
     res.sendfile("./static/index.html");
 });
 
-let amountBots = 5;
+let amountBots = 1;
 let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
@@ -306,17 +306,12 @@ function botsTurn() {
     for (let pId in players) {
         let player = players[pId];
         if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
-            // console.log(player === null);
-            // console.log(player === undefined);
-            // console.log(player === {});
-            // console.log(player instanceof Player);
-            // console.log(typeof player);
             if (player.isBot) {
-                player.makeDesicions(players);
-                let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
-                let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
-                let topCell = map.getCellByPoint(player.posX, player.posY - 20)
-                let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
+                player.makeDesicions(players, pwrups, map);
+                let leftCell = map.getCellByPoint(player.posX - 20, player.posY);
+                let rightCell = map.getCellByPoint(player.posX + 15, player.posY);
+                let topCell = map.getCellByPoint(player.posX, player.posY - 20);
+                let bottomCell = map.getCellByPoint(player.posX, player.posY + 15);
 
                 if (player.actions.left) {
                     if (!player.collideLeft(leftCell)) {
@@ -356,6 +351,17 @@ function botsTurn() {
                 if (player.actions.mouse_down) {
                     fireIfPossible(pId);
                 }
+
+                for (let pwrup of pwrups) {
+                    let index = pwrups.indexOf(pwrup);
+                    if (pwrup.isCollideWithPlayer(player)) {
+                        player.setPower(pwrup);
+                        if (index > -1) {
+                            pwrups.splice(index, 1);
+                        }
+                    }
+                }
+
             }
         } else {
             players[pId] = respawnPlayer(pId, true);
