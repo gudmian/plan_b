@@ -2,6 +2,7 @@
 let http = require("http");
 let path = require("path");
 let express = require("express");
+const bodyParser = require('body-parser');
 let logger = require("winston");
 let socketIo = require("socket.io");
 let Player = require("./object/player");
@@ -19,7 +20,16 @@ const mainSocket = socketIo(server);
 app.use("/static", express.static(path.join(__dirname, "/static")));
 
 app.get("/", (req, res) => {
-    res.sendfile("./static/index.html");
+    res.sendfile("./static/welcome.html");
+});
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.post("/login", (req, res) => {
+    var complexity = req.body.group1;
+    var nickname = req.body.name;
+    var bots = req.body.bots;
+	res.redirect("./static/index.html");
 });
 
 let amountBots = 1;

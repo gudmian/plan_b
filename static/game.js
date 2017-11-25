@@ -155,17 +155,17 @@ setInterval(() => {
 
 socket.on("render", (state) => {
 	let tex_player = new Image();
-	tex_player.src = "static/textures/players/apier.png";
+	tex_player.src = "../static/textures/players/apier.png";
 	let tex_player2 = new Image();
-	tex_player2.src = "static/textures/players/greenier.png";
+	tex_player2.src = "../static/textures/players/greenier.png";
 	let tex_player3 = new Image();
-	tex_player3.src = "static/textures/players/iceer.png";
+	tex_player3.src = "../static/textures/players/iceer.png";
 	let tex_weaponSimple = new Image();
-	tex_weaponSimple.src = "static/textures/weapons/pistol.png";
+	tex_weaponSimple.src = "../static/textures/weapons/pistol.png";
 	let tex_weaponMedium = new Image();
-	tex_weaponMedium.src = "static/textures/weapons/medium.png";
+	tex_weaponMedium.src = "../static/textures/weapons/medium.png";
 	let tex_weaponStrong = new Image();
-	tex_weaponStrong.src = "static/textures/weapons/strong.png";
+	tex_weaponStrong.src = "../static/textures/weapons/strong.png";
 
 	// var tex_playerLoaded = false;
 	// tex_player.onload = function(){
@@ -233,19 +233,19 @@ socket.on("render", (state) => {
         let pwrups = state.powerupInf;
 
         let tex_mediumWeapon = new Image();
-        tex_mediumWeapon.src = "static/textures/powerUp/mediumWeapon.png";
+        tex_mediumWeapon.src = "../static/textures/powerUp/mediumWeapon.png";
 		let tex_strongWeapon = new Image();
-		tex_strongWeapon.src = "static/textures/powerUp/strongWeapon.png";
+		tex_strongWeapon.src = "../static/textures/powerUp/strongWeapon.png";
 		let tex_patrons = new Image();
-		tex_patrons.src = "static/textures/powerUp/patronsWeapon.png";
+		tex_patrons.src = "../static/textures/powerUp/patronsWeapon.png";
 		let tex_health = new Image();
-		tex_health.src = "static/textures/powerUp/heart.png";
+		tex_health.src = "../static/textures/powerUp/heart.png";
 		let tex_shield = new Image();
-		tex_shield.src = "static/textures/powerUp/shield.png";
+		tex_shield.src = "../static/textures/powerUp/shield.png";
 		let tex_speed = new Image();
-		tex_speed.src = "static/textures/powerUp/speed.png";
+		tex_speed.src = "../static/textures/powerUp/speed.png";
 		let tex_berserk = new Image();
-		tex_berserk.src = "static/textures/powerUp/berserk.png";
+		tex_berserk.src = "../static/textures/powerUp/berserk.png";
 
         for (let pwrupId in pwrups){
 			dynamicContext.beginPath();
@@ -299,7 +299,7 @@ socket.on("render static", (map) => {
             }
             else {
                 ground = new Image();
-                ground.src = "static/textures/grass00.png";
+                ground.src = "../static/textures/grass00.png";
                 ground.onload = function () {
                     staticContext.drawImage(ground, cell.posX, cell.posY, cell.size, cell.size)
                 }

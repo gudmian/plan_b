@@ -12,28 +12,29 @@
         <h1>Crab's World</h1>
 
         <fieldset>
-            <form action="" method="post">
-                <input type="text" required value="Login">
+            <form action="login" method="post">
+                <input type="text" required value="Login" id="name">
                 <div class="complexity">
                     Complexity: <br>
                     <label for="easy">
-                        <input name="group1" type="radio" id="easy" checked>
+                        <input name="group1" type="radio" id="easy" value="easy" checked>
                         Easy-Peasy
                     </label>
                     <label for="medium">
-                        <input name="group1" type="radio" id="medium">
+                        <input name="group1" type="radio" id="medium" value="medium">
                         Poidet
                     </label>
                     <label for="hard">
-                        <input name="group1" type="radio" id="hard">
+                        <input name="group1" type="radio" id="hard" value="hard">
                         Myaso
                     </label>
                 </div>
-                <input type="text" required value="Bots">
-                <input type="submit" value="START" class="btn">
+                <input type="text" required value="Bots" id="bots">
+                <input type="submit" value="START" id="btn">
             </form>
         </fieldset>
 
     </div>
 </body>
+<script src="../login.js"></script>
 </html>
