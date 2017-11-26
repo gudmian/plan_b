@@ -15,7 +15,12 @@ dynamicCanvas.width = 800;
 staticCanvas.height = 800;
 dynamicCanvas.height = 800;
 
-socket.emit("new player");
+
+var url_string = window.location.href;
+var url = new URL(url_string);
+var nickname = url.searchParams.get("nickname");
+
+socket.emit("new player", nickname);
 
 let movement = {
     mouse_X: 0,

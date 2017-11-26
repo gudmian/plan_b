@@ -24,20 +24,27 @@ app.get("/", (req, res) => {
     res.sendfile("./static/welcome.html");
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.post("/login", (req, res) => {
-    var complexity = req.body.group1;
-    var nickname = req.body.name;
-    var bots = req.body.bots;
-	res.redirect("./static/index.html");
-});
-
+let connectionsAmount = 0;
 let amountBots = 1;
+let difficultyBots = "";
 let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
 let maxPowerups = 5;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.post("/firstlogin", (req, res) => {
+    let complexity = req.body.group1;
+    let nickname = req.body.username;
+    let botsInf = req.body.botsAmount;
+    connectionsAmount++;
+    amountBots = parseInt(botsInf);
+    difficultyBots = complexity;
+    let params = "?nickname=" + nickname;
+    res.redirect("./static/index.html" + params);
+});
+
 
 let players = {};
 let bullets = {};
@@ -71,11 +78,9 @@ mainSocket.on("connection", (socket) => {
         console.log("Connected player with id:", socket.id);
     });
 
-    socket.on("new player", () => {
-        // let spawnCell = map.getEmptyCell();
-        let player = respawnPlayer(socket.id,false);
-        // let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id, false);
-        // player.id = socket.id;
+    socket.on("new player", (nickname) => {
+        console.log(nickname);
+        let player = respawnPlayer(socket.id, nickname, false);
         players[socket.id] = player;
         socket.emit("render static", map);
     });
@@ -161,12 +166,12 @@ mainSocket.on("connection", (socket) => {
                                     if (!players[id].isShield) {
                                         players[id].health -= bullet.damage;
                                         if (players[id].health <= 0) {
-                                            for(let index = 0; index < scoreTable.length; index++){
-                                                if(scoreTable[index].id === bullet.owner){
-                                                    scoreTable[index].score +=100;
+                                            for (let index = 0; index < scoreTable.length; index++) {
+                                                if (scoreTable[index].id === bullet.owner) {
+                                                    scoreTable[index].score += 100;
                                                 }
                                             }
-                                            players[id] = respawnPlayer(id, players[id].isBot);
+                                            players[id] = respawnPlayer(id, players[id].name, players[id].isBot);
                                             // }, 2000);
                                         }
                                     }
@@ -189,14 +194,14 @@ mainSocket.on("connection", (socket) => {
 
             // changeCameraPosition(player);
         } else {
-            if(players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
+            if (players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].name, players[socket.id].isBot);
         }
     });
 
     socket.on("disconnect", () => {
         delete players[socket.id];
-        for(let index = 0; index < scoreTable.length; index++){
-            if(scoreTable[index].id === socket.id){
+        for (let index = 0; index < scoreTable.length; index++) {
+            if (scoreTable[index].id === socket.id) {
                 scoreTable.splice(index, 1);
             }
         }
@@ -221,7 +226,7 @@ function createPowerup() {
 function addBot() {
     if (botCount < maxBots && Date.now() > lastBotAction + 300) {
         let botId = shortid.generate();
-        players[botId] = respawnPlayer(botId, true);
+        players[botId] = respawnPlayer(botId, "BOT-" + botCount, true);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -232,8 +237,8 @@ function removeBot() {
         for (let id in players) {
             if (players[id].isBot) {
                 delete players[id];
-                for(let index = 0; index < scoreTable.length; index++){
-                    if(scoreTable[index].id === id){
+                for (let index = 0; index < scoreTable.length; index++) {
+                    if (scoreTable[index].id === id) {
                         scoreTable.splice(index, 1);
                     }
                 }
@@ -246,15 +251,15 @@ function removeBot() {
 }
 
 function sortScores() {
-    scoreTable.sort((a, b)=>{
-       return b.score- a.score;
+    scoreTable.sort((a, b) => {
+        return b.score - a.score;
     });
 }
 
 function createBots() {
     for (let i = 0; i < amountBots; i++) {
         let botId = shortid.generate();
-        players[botId] = respawnPlayer(botId, true);
+        players[botId] = respawnPlayer(botId, "BOT-" + botCount, true);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -302,10 +307,10 @@ function fireIfPossible(id) {
     }
 }
 
-function respawnPlayer(id, isBot) {
+function respawnPlayer(id, name, isBot) {
     let spawnCell = map.getEmptyCell();
-    if(players[id] === undefined) scoreTable.push(new TableRaw(id, id, 0));
-    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id, isBot);
+    if (players[id] === undefined) scoreTable.push(new TableRaw(id, name, 0));
+    return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id, name, isBot);
 }
 
 function fire(id) {
@@ -384,7 +389,7 @@ function botsTurn() {
 
             }
         } else {
-            players[pId] = respawnPlayer(pId, true);
+            players[pId] = respawnPlayer(pId, players[pId].name, true);
         }
     }
 }

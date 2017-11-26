@@ -7,9 +7,9 @@ var pwr = require("../global").constants.POWERUP;
 var Map = require("./map");
 
 class Player {
-    constructor(x, y, cell, id, isBot) {
+    constructor(x, y, cell, id, name, isBot) {
         this.id = id;
-        this.name;
+        this.name = name;
         this.radius = 15 /*px*/;
         this.posX = x;
         this.posY = y;
