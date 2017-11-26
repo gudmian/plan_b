@@ -10,6 +10,7 @@ let Bullet = require("./object/bullet");
 let Powerup = require("./object/powerup");
 let WEAPON = require("./global").constants.WEAPON;
 let shortid = require("shortid");
+let TableRaw = require("./object/tableRaw");
 
 const app = express();
 const server = http.Server(app);
@@ -69,7 +70,7 @@ mainSocket.on("connection", (socket) => {
         let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id, false);
         // player.id = socket.id;
         players[socket.id] = player;
-        scoreTable[socket.id] = 0;
+        scoreTable[socket.id] = new TableRaw(player.id, 0);
         socket.emit("render static", map);
     });
 
@@ -155,7 +156,7 @@ mainSocket.on("connection", (socket) => {
                                         players[id].health -= bullet.damage;
                                         if (players[id].health <= 0) {
                                             // setTimeout(() => {
-                                            scoreTable[bullet.owner] += 100;
+                                            scoreTable[bullet.owner].score += 100;
                                             players[id] = respawnPlayer(id, players[id].isBot);
                                             // }, 2000);
                                         }
