@@ -210,7 +210,7 @@ function convertPlayerPosition(pos) {
         resPos = 500 - (maxPos - pos);
     }
     else {
-        resPos = 250 /*+ pos % 50*/;
+        resPos = 250 + pos % 50;
     }
     return resPos;
 
