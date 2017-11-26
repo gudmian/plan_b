@@ -2,6 +2,7 @@
 let http = require("http");
 let path = require("path");
 let express = require("express");
+const bodyParser = require('body-parser');
 let logger = require("winston");
 let socketIo = require("socket.io");
 let Player = require("./object/player");
@@ -20,7 +21,16 @@ const mainSocket = socketIo(server);
 app.use("/static", express.static(path.join(__dirname, "/static")));
 
 app.get("/", (req, res) => {
-    res.sendfile("./static/index.html");
+    res.sendfile("./static/welcome.html");
+});
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.post("/login", (req, res) => {
+    var complexity = req.body.group1;
+    var nickname = req.body.name;
+    var bots = req.body.bots;
+	res.redirect("./static/index.html");
 });
 
 let amountBots = 1;
@@ -32,8 +42,6 @@ let maxPowerups = 5;
 let players = {};
 let bullets = {};
 let pwrups = [];
-let cameraX = 0;
-let cameraY = 0;
 
 let scoreTable = {};
 
@@ -43,9 +51,7 @@ let renderData = {
     playersInf: players,
     bulletsInf: bullets,
     powerupInf: pwrups,
-    scores: scoreTable,
-    cameraX: cameraX,
-    cameraY: cameraY
+    scores: scoreTable
 };
 
 for (let player in players) {
@@ -152,7 +158,7 @@ mainSocket.on("connection", (socket) => {
                                 if (bullet.owner === id) continue;
                                 if (bullet.collideWithPlayer(players[id])) {
                                     bulletDead(bulletId, bullet);
-                                    if(!players[id].isShield){
+                                    if (!players[id].isShield) {
                                         players[id].health -= bullet.damage;
                                         if (players[id].health <= 0) {
                                             // setTimeout(() => {
@@ -178,7 +184,7 @@ mainSocket.on("connection", (socket) => {
                 }
             }
 
-            changeCameraPosition(player);
+            // changeCameraPosition(player);
         } else {
             if(players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].isBot);
         }
@@ -191,13 +197,6 @@ mainSocket.on("connection", (socket) => {
 
 });
 
-function changeCameraPosition(player) {
-    cameraX = (player.posX-250) > 0 ? (player.posX-250) : 0;
-    cameraY = (player.posY-250) > 0 ? (player.posY-250) : 0;
-
-    // cameraX = (player.posX+250) < map.levelSize * player.cell.size ? (player.posX-250) : cameraX;
-    // cameraY = (player.posY+250) < map.levelSize * player.cell.size ? (player.posY-250) : cameraY;
-}
 
 function createPowerup() {
     setInterval(() => {
