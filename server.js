@@ -43,7 +43,7 @@ let players = {};
 let bullets = {};
 let pwrups = [];
 
-let scoreTable = {};
+let scoreTable = [];
 
 let map = null;
 
@@ -72,11 +72,11 @@ mainSocket.on("connection", (socket) => {
     });
 
     socket.on("new player", () => {
-        let spawnCell = map.getEmptyCell();
-        let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id, false);
+        // let spawnCell = map.getEmptyCell();
+        let player = respawnPlayer(socket.id,false);
+        // let player = new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, socket.id, false);
         // player.id = socket.id;
         players[socket.id] = player;
-        scoreTable[socket.id] = new TableRaw(player.id, 0);
         socket.emit("render static", map);
     });
 
@@ -161,8 +161,11 @@ mainSocket.on("connection", (socket) => {
                                     if (!players[id].isShield) {
                                         players[id].health -= bullet.damage;
                                         if (players[id].health <= 0) {
-                                            // setTimeout(() => {
-                                            scoreTable[bullet.owner].score += 100;
+                                            for(let index = 0; index < scoreTable.length; index++){
+                                                if(scoreTable[index].id === bullet.owner){
+                                                    scoreTable[index].score +=100;
+                                                }
+                                            }
                                             players[id] = respawnPlayer(id, players[id].isBot);
                                             // }, 2000);
                                         }
@@ -192,6 +195,11 @@ mainSocket.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         delete players[socket.id];
+        for(let index = 0; index < scoreTable.length; index++){
+            if(scoreTable[index].id === socket.id){
+                scoreTable.splice(index, 1);
+            }
+        }
     });
 
 
@@ -214,7 +222,6 @@ function addBot() {
     if (botCount < maxBots && Date.now() > lastBotAction + 300) {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, true);
-        scoreTable[botId] = new TableRaw(botId, 0);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -225,6 +232,11 @@ function removeBot() {
         for (let id in players) {
             if (players[id].isBot) {
                 delete players[id];
+                for(let index = 0; index < scoreTable.length; index++){
+                    if(scoreTable[index].id === id){
+                        scoreTable.splice(index, 1);
+                    }
+                }
                 lastBotAction = Date.now();
                 botCount--;
                 return;
@@ -233,11 +245,16 @@ function removeBot() {
     }
 }
 
+function sortScores() {
+    scoreTable.sort((a, b)=>{
+       return b.score- a.score;
+    });
+}
+
 function createBots() {
     for (let i = 0; i < amountBots; i++) {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, true);
-        scoreTable[botId] = new TableRaw(botId, 0);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -287,6 +304,7 @@ function fireIfPossible(id) {
 
 function respawnPlayer(id, isBot) {
     let spawnCell = map.getEmptyCell();
+    if(players[id] === undefined) scoreTable.push(new TableRaw(id, id, 0));
     return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id, isBot);
 }
 
@@ -399,7 +417,7 @@ function normalizeAngle(angle) {
 
 setInterval(() => {
     botsTurn();
-    console.log("SCORES", scoreTable);
+    sortScores();
     mainSocket.sockets.emit("render", renderData);
 }, 1000 / 60);
 

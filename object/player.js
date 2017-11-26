@@ -301,7 +301,7 @@ class Player {
 
     cleverWander(player, map) {
         let minDist = this.proud;
-        console.log("Min dist", minDist);
+        // console.log("Min dist", minDist);
         let needSeek = (this.countDistToObject(player) >= minDist-10 ) && (this.health >= player.health);
         if (needSeek) {
             this.cleverSeek(player, map);
@@ -491,11 +491,11 @@ class Player {
             let testX = this.posX + xFactor;
             let testY = this.posY + yFactor;
             let cell = map.getCellByPoint(testX, testY);
-            if(cell)console.log("CELL:", cell.posX, cell.posY);
-            console.log("PLAYER:", player.posX, player.posY);
-            console.log("TEST:", testX, testY);
+            // if(cell)console.log("CELL:", cell.posX, cell.posY);
+            // console.log("PLAYER:", player.posX, player.posY);
+            // console.log("TEST:", testX, testY);
             if (cell && cell.isBlock) {
-                console.log("THE WALL");
+                // console.log("THE WALL");
                 return true;
             }
         }

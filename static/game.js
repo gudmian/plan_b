@@ -314,12 +314,12 @@ socket.on("render", (state) => {
 	function renderScores() {
 		let scoresTabl = state.scores;
 		y=10;
-			for (let scoreId in scoresTabl) {
+			for (let scoreId of scoresTabl) {
 				scoreContext.beginPath();
 				scoreContext.fillStyle = "blue";
 				scoreContext.font = "bold 8pt Arial";
-				scoreContext.fillText(scoresTabl[scoreId].nick, 10, y);
-				scoreContext.fillText(scoresTabl[scoreId].score, 200, y);
+				scoreContext.fillText(scoreId.nick, 10, y);
+				scoreContext.fillText(scoreId.score, 200, y);
 				y += 20;
 				scoreContext.closePath();
 			}
