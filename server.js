@@ -217,7 +217,6 @@ mainSocket.on("connection", (socket) => {
         } else {
             if (players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].name, players[socket.id].isBot);
         }
-        updateBots();
     });
 
     socket.on("disconnect", () => {
