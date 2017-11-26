@@ -218,6 +218,7 @@ class Player {
     recountProps(){
         this.botVision = dif.diff_desc[this.diff].vision;
         this.botAccuracy = dif.diff_desc[this.diff].accuracy;
+        console.log("Vision:", this.botVision, "Accuracy:", this.botAccuracy);
     }
 
 

@@ -107,6 +107,7 @@ mainSocket.on("connection", (socket) => {
     socket.on("new player", (nickname) => {
         console.log(nickname);
         let player = respawnPlayer(socket.id, nickname, false);
+        player.setDifficulty(difficultyBots);
         players[socket.id] = player;
         socket.emit("render static", map);
     });
@@ -198,7 +199,7 @@ mainSocket.on("connection", (socket) => {
                                                 }
                                             }
                                             players[id] = respawnPlayer(id, players[id].name, players[id].isBot);
-                                            // }, 2000);
+                                            players[id].setDifficulty(difficultyBots);
                                         }
                                     }
                                 }
@@ -256,6 +257,7 @@ function addBot() {
     if (botCount < maxBots && Date.now() > lastBotAction + 300) {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, "Bot-" + botCount, true);
+        players[botId].setDifficulty(difficultyBots);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -289,6 +291,7 @@ function createBots() {
     for (let i = 0; i < amountBots; i++) {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, "Bot-" + botCount, true);
+        players[botId].setDifficulty(difficultyBots);
         lastBotAction = Date.now();
         players[botId].setDifficulty(difficultyBots);
         botCount++;
@@ -423,6 +426,7 @@ function botsTurn() {
             }
         } else {
             players[pId] = respawnPlayer(pId, players[pId].name, true);
+            players[pId].setDifficulty(difficultyBots);
         }
     }
 }
