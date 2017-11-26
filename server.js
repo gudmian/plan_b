@@ -89,7 +89,6 @@ for (let player in players) {
 
 mainSocket.on("connection", (socket) => {
 
-
     if (!map) {
         map = new Map(1);
         createBots();
@@ -112,10 +111,10 @@ mainSocket.on("connection", (socket) => {
         let player = players[socket.id] || {};
 
         if (players !== {} && player !== {} && player !== undefined && players !== undefined && (player instanceof Player)) {
-            let leftCell = map.getCellByPoint(player.posX - 20, player.posY)
-            let rightCell = map.getCellByPoint(player.posX + 15, player.posY)
-            let topCell = map.getCellByPoint(player.posX, player.posY - 20)
-            let bottomCell = map.getCellByPoint(player.posX, player.posY + 15)
+            let leftCell = map.getCellByPoint(player.posX - 20, player.posY);
+            let rightCell = map.getCellByPoint(player.posX + 15, player.posY);
+            let topCell = map.getCellByPoint(player.posX, player.posY - 20);
+            let bottomCell = map.getCellByPoint(player.posX, player.posY + 15);
 
             if (data.left) {
                 if (!player.collideLeft(leftCell)) {
@@ -212,7 +211,7 @@ mainSocket.on("connection", (socket) => {
                     }
                 }
             }
-
+            player.cell = map.getCellByPoint(player.posX, player.posY);
             // changeCameraPosition(player);
         } else {
             if (players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].name, players[socket.id].isBot);
@@ -420,9 +419,24 @@ function getMouseAngle(movement, socketId) {
     let player = players[socketId];
     let x = 0;
     let y = 0;
+    let maxPos = map.levelSize * map.cellMatrix[0][0].size;
+    function convertPlayerPosition(pos) {
+        let resPos = 0;
+        if (pos < 250) {
+            resPos = pos;
+        }
+        else if (pos + 250 > maxPos) {
+            resPos = 500 - (maxPos - pos);
+        }
+        else {
+            resPos = 250 /*+ pos % 50*/;
+        }
+        return resPos;
+
+    }
     if (player !== undefined) {
-        x = player.posX;
-        y = player.posY;
+        x = convertPlayerPosition(player.posX);
+        y = convertPlayerPosition(player.posY);
     }
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
     if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0) {
@@ -445,7 +459,7 @@ function normalizeAngle(angle) {
 setInterval(() => {
     botsTurn();
     sortScores();
-    mainSocket.sockets.emit("render", renderData);
+    mainSocket.sockets.emit("render", renderData, map);
 }, 1000 / 60);
 
 
