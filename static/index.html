@@ -15,7 +15,7 @@
             <ul class="list">
                 <li><input id="sensitive" type="range" min="0" max="100" value="50" /></li>
                 <li>
-                    <input type="checkbox" id="sounds"/>
+                    <input type="checkbox" id="sounds" checked/>
                     <label for="sounds"><span class="check"></span><b>Sounds volume</b></label>
                 </li>
                 <li><img src="../static/images/full-screen.svg" onclick="enterFullscreen('canvases','layer1','layer2')" id="fullscreenBtn"/><b>Full-screen</b></li>
@@ -26,6 +26,8 @@
             <canvas id="layer2"></canvas>
             <canvas id="layer3"></canvas>
             <canvas id="layer4"></canvas>
+            <audio id="shoot" src="../static/sounds/laser_shoot.wav" style="display:none"></audio>
+            <audio id="respawn" src="../static/sounds/respawn.wav" style="display:none"></audio>
             <!--<div id="abilities" onload="upda()">-->
                 <!--<p>Nickname</p><br>-->
                 <!--<label>Weapon: </label>-->

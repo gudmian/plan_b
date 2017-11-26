@@ -1,6 +1,8 @@
-"use sctrict"
+"use strict"
 
 let socket = io();
+const audioShoot = document.getElementById("shoot");
+const audioRespawn = document.getElementById("respawn");
 const staticCanvas = document.getElementById("layer1");
 const dynamicCanvas = document.getElementById("layer2");
 const abilitiesCanvas = document.getElementById("layer3");
@@ -16,6 +18,9 @@ staticCanvas.height = 800;
 dynamicCanvas.height = 800;
 
 socket.emit("new player");
+if (document.getElementById("sounds").checked == true) {
+	audioRespawn.play();
+}
 
 let movement = {
     mouse_X: 0,
@@ -126,11 +131,25 @@ function initMouseEvents() {
 
     dynamicCanvas.addEventListener("mouseup", function (event) {
         movement.mouse_down = false;
+		if (!movement.mouse_down) {
+			audioShoot.pause();
+		}
     }, false);
 
     dynamicCanvas.addEventListener("mousedown", function (event) {
         movement.mouse_down = true;
+        if (movement.mouse_down) {
+        	// alert(document.getElementById("sounds").checked == true);
+			if (document.getElementById("sounds").checked == true) {
+				audioShoot.play();
+			}
+		}
     }, false);
+
+	audioShoot.addEventListener("ended", loop, false);
+	function loop() {
+		audioShoot.play();
+	}
 
     dynamicCanvas.addEventListener("mousewheel", function (event) {
         movement.mouse_wheel += event.wheelDelta;
@@ -313,8 +332,10 @@ socket.on("render", (state) => {
 	scoreContext.clearRect(0, 0, 800, 800);
 	function renderScores() {
 		let scoresTabl = state.scores;
-		y=10;
-			for (let scoreId of scoresTabl) {
+
+		var y=10;
+			for (let scoreId in scoresTabl) {
+
 				scoreContext.beginPath();
 				scoreContext.fillStyle = "blue";
 				scoreContext.font = "bold 8pt Arial";
@@ -344,7 +365,7 @@ socket.on("render static", (map) => {
                 staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
             }
             else {
-                ground = new Image();
+                let ground = new Image();
                 ground.src = "../static/textures/grass00.png";
                 ground.onload = function () {
                     staticContext.drawImage(ground, cell.posX, cell.posY, cell.size, cell.size)
