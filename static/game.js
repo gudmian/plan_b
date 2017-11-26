@@ -16,6 +16,7 @@ staticCanvas.width = 500;
 dynamicCanvas.width = 500;
 staticCanvas.height = 500;
 dynamicCanvas.height = 500;
+let isNeedRender = true;
 
 
 var url_string = window.location.href;
@@ -24,7 +25,7 @@ var nickname = url.searchParams.get("nickname");
 
 socket.emit("new player", nickname);
 if (document.getElementById("sounds").checked === true) {
-	audioRespawn.play();
+    audioRespawn.play();
 }
 
 let movement = {
@@ -136,25 +137,26 @@ function initMouseEvents() {
 
     dynamicCanvas.addEventListener("mouseup", function (event) {
         movement.mouse_down = false;
-		if (!movement.mouse_down) {
-			audioShoot.pause();
-		}
+        if (!movement.mouse_down) {
+            audioShoot.pause();
+        }
     }, false);
 
     dynamicCanvas.addEventListener("mousedown", function (event) {
         movement.mouse_down = true;
         if (movement.mouse_down) {
-        	// alert(document.getElementById("sounds").checked == true);
-			if (document.getElementById("sounds").checked == true) {
-				audioShoot.play();
-			}
-		}
+            // alert(document.getElementById("sounds").checked == true);
+            if (document.getElementById("sounds").checked == true) {
+                audioShoot.play();
+            }
+        }
     }, false);
 
-	audioShoot.addEventListener("ended", loop, false);
-	function loop() {
-		audioShoot.play();
-	}
+    audioShoot.addEventListener("ended", loop, false);
+
+    function loop() {
+        audioShoot.play();
+    }
 
     dynamicCanvas.addEventListener("mousewheel", function (event) {
         movement.mouse_wheel += event.wheelDelta;
@@ -175,10 +177,11 @@ function initMouseEvents() {
 
 initMouseEvents();
 
-setInterval(() => {
-    socket.emit("change state", movement);
-}, 1000 / 60);
-
+if (isNeedRender) {
+    setInterval(() => {
+        socket.emit("change state", movement);
+    }, 1000 / 60);
+}
 
 //vision parameters
 let visionWidth = 500;
@@ -186,7 +189,7 @@ let visionHeigth = 500;
 
 function isInVision(x, y, player) {
 
-    if (player !== undefined){
+    if (player !== undefined) {
 
         if (x > (player.posX - visionWidth / 2) && x < (player.posX + visionWidth / 2) &&
             y > (player.posY - visionHeigth / 2) && y < (player.posY + visionHeigth / 2)) {
@@ -233,6 +236,11 @@ function convertCoordY(coord) {
 let oldCellX = 0;
 let oldCellY = 0;
 
+
+socket.on("game over", (winner)=>{
+
+});
+
 socket.on("render", (state, map) => {
 
     let tex_player = new Image();
@@ -248,10 +256,10 @@ socket.on("render", (state, map) => {
     let tex_weaponStrong = new Image();
     tex_weaponStrong.src = "../static/textures/weapons/strong.png";
 
-	// var tex_playerLoaded = false;
-	// tex_player.onload = function(){
-	// 	tex_playerLoaded = true;
-	// };
+    // var tex_playerLoaded = false;
+    // tex_player.onload = function(){
+    // 	tex_playerLoaded = true;
+    // };
 
     dynamicContext.clearRect(0, 0, dynamicCanvas.width, dynamicCanvas.height);
 
@@ -269,7 +277,7 @@ socket.on("render", (state, map) => {
                     dynamicContext.fillStyle = "#00F";
                 }
                 dynamicContext.font = "italic 10pt Arial";
-                if (socket.id === id){
+                if (socket.id === id) {
                     dynamicContext.fillText(player.health, convertPlayerPosition(player.posX) - 15, convertPlayerPosition(player.posY) - 20);
 
                     let dx = convertPlayerPosition(player.posX);
@@ -287,7 +295,7 @@ socket.on("render", (state, map) => {
                     if (player.skin === 2) dynamicContext.drawImage(tex_player3, convertPlayerPosition(player.posX) - 15, convertPlayerPosition(player.posY) - 15, 30, 30);
                     dynamicContext.restore();
                 }
-                else{
+                else {
 
                     dynamicContext.fillText(player.health, convertCoordX(player.posX) - 15, convertCoordY(player.posY) - 20);
 
@@ -400,7 +408,6 @@ socket.on("render", (state, map) => {
     }
 
 
-
     if (state.playersInf[socket.id] !== undefined && map) {
         // let deltaX = state.playersInf[socket.id].posX <= 250 ?  state.playersInf[socket.id].posX : 250 - state.playersInf[socket.id].posX;
         // let deltaY = state.playersInf[socket.id].posY <= 250 ?  state.playersInf[socket.id].posY : 250 - state.playersInf[socket.id].posY;
@@ -510,26 +517,27 @@ socket.on("render", (state, map) => {
     //             }
     //         }
 
-	scoreContext.clearRect(0, 0, 800, 800);
-	function renderScores() {
-		let scoresTabl = state.scores;
+    scoreContext.clearRect(0, 0, 800, 800);
 
-		var y=10;
-			for (let scoreId of scoresTabl) {
+    function renderScores() {
+        let scoresTabl = state.scores;
 
-				scoreContext.beginPath();
-				scoreContext.fillStyle = "blue";
-				scoreContext.font = "bold 8pt Arial";
-				scoreContext.fillText(scoreId.nick, 10, y);
-				scoreContext.fillText(scoreId.score, 200, y);
-				y += 20;
-				scoreContext.closePath();
-			}
-			// abilitiesContext.fillText(scoresId.score, 60, 10);
-	}
+        var y = 10;
+        for (let scoreId of scoresTabl) {
+
+            scoreContext.beginPath();
+            scoreContext.fillStyle = "blue";
+            scoreContext.font = "bold 8pt Arial";
+            scoreContext.fillText(scoreId.nick, 10, y);
+            scoreContext.fillText(scoreId.score, 200, y);
+            y += 20;
+            scoreContext.closePath();
+        }
+        // abilitiesContext.fillText(scoresId.score, 60, 10);
+    }
 
 
-	renderScores();
+    renderScores();
     renderPlayers();
     renderBullets();
     renderWeaponName();

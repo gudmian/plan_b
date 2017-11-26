@@ -436,6 +436,7 @@ function getMouseAngle(movement, socketId) {
     let x = 0;
     let y = 0;
     let maxPos = map.levelSize * map.cellMatrix[0][0].size;
+
     function convertPlayerPosition(pos) {
         let resPos = 0;
         if (pos < 250) {
@@ -450,12 +451,13 @@ function getMouseAngle(movement, socketId) {
         return resPos;
 
     }
+
     if (player !== undefined) {
-        if (!player.isBot){
+        if (!player.isBot) {
             x = convertPlayerPosition(player.posX);
             y = convertPlayerPosition(player.posY);
         }
-        else{
+        else {
             x = player.posX;
             y = player.posY;
         }
@@ -477,12 +479,24 @@ function normalizeAngle(angle) {
     return angle;
 }
 
+function dropScores() {
+    scoreTable.forEach((a)=>{
+        a.score = 0;
+    })
+}
 
-setInterval(() => {
-    botsTurn();
-    sortScores();
-    mainSocket.sockets.emit("render", renderData, map);
-}, 1000 / 60);
+    setInterval(() => {
+        botsTurn();
+        sortScores();
+        let maxScore = 0;
+        if(scoreTable.length > 0) maxScore = scoreTable[0];
+        if (maxScore.score < 3000) {
+            mainSocket.sockets.emit("render", renderData, map);
+        } else {
+            mainSocket.sockets.emit("game over", maxScore);
+            dropScores();
+        }
+    }, 1000 / 60);
 
 
 server.listen(8080, () => {
