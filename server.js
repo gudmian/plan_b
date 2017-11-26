@@ -214,6 +214,7 @@ function addBot() {
     if (botCount < maxBots && Date.now() > lastBotAction + 300) {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, true);
+        scoreTable[botId] = new TableRaw(botId, 0);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -398,6 +399,7 @@ function normalizeAngle(angle) {
 
 setInterval(() => {
     botsTurn();
+    console.log("SCORES", scoreTable);
     mainSocket.sockets.emit("render", renderData);
 }, 1000 / 60);
 
