@@ -4,6 +4,7 @@ var Weapon = require("./weapon");
 var Power = require("./powerup");
 var wpn = require("../global").constants.WEAPON;
 var pwr = require("../global").constants.POWERUP;
+var dif = require("../global").constants.DIFFICULTY;
 var Map = require("./map");
 
 class Player {
@@ -14,14 +15,16 @@ class Player {
         this.posX = x;
         this.posY = y;
         this.isBot = isBot;
+        this.diff = dif.EASY;
         this.botVision = 400;
+        this.botAccuracy = 35;
         this.botTetta = 0;
         this.angle = 0;
         this.health = 100;
         this.cell = cell;
         this.weapon = {};
-        this.currentWeapon;
-        this.powerup;
+        this.currentWeapon = null;
+        this.powerup = null;
         this.checkStepDistance = 10;
         this.proud = Math.random() * (this.radius + 200 - 2 * this.radius) + 2 * this.radius;
         this.isShield = false;
@@ -41,6 +44,7 @@ class Player {
         };
 
         this.setSimpleWeapon();
+        this.recountProps();
     }
 
     collideLeft(collobj) {
@@ -202,6 +206,20 @@ class Player {
         this.currentWeapon.restoreDamage();
     }
 
+    setDifficulty(difficult){
+        if (difficult === undefined) {
+            this.diff = dif.EASY;
+        } else {
+            this.diff = difficult;
+        }
+        this.recountProps();
+    }
+
+    recountProps(){
+        this.botVision = dif.diff_desc[this.diff].vision;
+        this.botAccuracy = dif.diff_desc[this.diff].accuracy;
+    }
+
 
     //FOR AI
     startFire() {
@@ -252,7 +270,7 @@ class Player {
 
 
     aimOnPlayer(player) {
-        let accuracy = Math.random() * 5;
+        let accuracy = Math.random() * this.botAccuracy;
         this.actions.mouse_X = player.posX + accuracy;
         this.actions.mouse_Y = player.posY + accuracy;
     }

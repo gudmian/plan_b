@@ -10,6 +10,7 @@ let Map = require("./object/map");
 let Bullet = require("./object/bullet");
 let Powerup = require("./object/powerup");
 let WEAPON = require("./global").constants.WEAPON;
+let DIFF = require("./global").constants.DIFFICULTY;
 let shortid = require("shortid");
 let TableRaw = require("./object/tableRaw");
 
@@ -18,11 +19,10 @@ const server = http.Server(app);
 const mainSocket = socketIo(server);
 
 
-
 let connectionsAmount = 0;
 
 let amountBots = 1;
-let difficultyBots = "";
+let difficultyBots = DIFF.EASY;
 let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
@@ -31,7 +31,7 @@ let maxPowerups = 5;
 app.use("/static", express.static(path.join(__dirname, "/static")));
 
 app.get("/", (req, res) => {
-    if(connectionsAmount === 0) {
+    if (connectionsAmount === 0) {
         res.sendfile("./static/welcome.html");
     } else {
         res.sendfile("./static/welcomeInCreatedGame.html");
@@ -46,7 +46,13 @@ app.post("/firstlogin", (req, res) => {
     let botsInf = req.body.botsAmount;
     connectionsAmount++;
     amountBots = parseInt(botsInf);
-    difficultyBots = complexity;
+    if (complexity === "easy") {
+        difficultyBots = DIFF.EASY;
+    } else if (complexity === "medium") {
+        difficultyBots = DIFF.NORMAL;
+    } else {
+        difficultyBots = DIFF.HARD;
+    }
     let params = "?nickname=" + nickname;
     res.redirect("./static/index.html" + params);
 });
@@ -283,6 +289,7 @@ function createBots() {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, "Bot-" + botCount, true);
         lastBotAction = Date.now();
+        players[botId].setDifficulty(difficultyBots);
         botCount++;
     }
     botsTurn();
