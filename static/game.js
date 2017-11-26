@@ -4,10 +4,12 @@ let socket = io();
 const staticCanvas = document.getElementById("layer1");
 const dynamicCanvas = document.getElementById("layer2");
 const abilitiesCanvas = document.getElementById("layer3");
+const scoreCanvas = document.getElementById("layer4");
 let currentHeight = document.getElementById("layer1").offsetHeight;
 let staticContext = staticCanvas.getContext("2d");
 let dynamicContext = dynamicCanvas.getContext("2d");
 let abilitiesContext = abilitiesCanvas.getContext("2d");
+let scoreContext = scoreCanvas.getContext("2d");
 staticCanvas.width = 800;
 dynamicCanvas.width = 800;
 staticCanvas.height = 800;
@@ -308,6 +310,24 @@ socket.on("render", (state) => {
         }
     }
 
+	scoreContext.clearRect(0, 0, 800, 800);
+	function renderScores() {
+		let scoresTabl = state.scores;
+		y=10;
+			for (let scoreId in scoresTabl) {
+				scoreContext.beginPath();
+				scoreContext.fillStyle = "blue";
+				scoreContext.font = "bold 8pt Arial";
+				scoreContext.fillText(scoresTabl[scoreId].nick, 10, y);
+				scoreContext.fillText(scoresTabl[scoreId].score, 200, y);
+				y += 20;
+				scoreContext.closePath();
+			}
+			// abilitiesContext.fillText(scoresId.score, 60, 10);
+	}
+
+
+	renderScores();
     renderPlayers();
     renderBullets();
     renderWeaponName();
