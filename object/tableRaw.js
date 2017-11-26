@@ -2,7 +2,8 @@
 
 class TableRaw {
 
-    constructor(nick, score){
+    constructor(id, nick, score){
+        this.id = id;
         this.nick = nick;
         this.score = score;
     }
