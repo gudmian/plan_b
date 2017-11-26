@@ -185,7 +185,9 @@ let visionWidth = 500;
 let visionHeigth = 500;
 
 function isInVision(x, y, player) {
-    if (player !== undefined) {
+
+    if (player !== undefined){
+
         if (x > (player.posX - visionWidth / 2) && x < (player.posX + visionWidth / 2) &&
             y > (player.posY - visionHeigth / 2) && y < (player.posY + visionHeigth / 2)) {
             return true;

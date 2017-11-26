@@ -206,6 +206,7 @@ mainSocket.on("connection", (socket) => {
                 let index = pwrups.indexOf(pwrup);
                 if (pwrup.isCollideWithPlayer(player)) {
                     player.setPower(pwrup);
+                    map.getCellByPoint(pwrup.posX, pwrup.posY).isReserved = false;
                     if (index > -1) {
                         pwrups.splice(index, 1);
                     }
@@ -236,6 +237,7 @@ function createPowerup() {
     setInterval(() => {
         if (pwrups.length <= maxPowerups) {
             let spawnCell = map.getEmptyCell();
+            spawnCell.isReserved = true;
             let type = Math.floor(Math.random() * (7 - 1) + 1);
             ;   //от 1 до 7 см. global.js
             pwrups.push(new Powerup(type, spawnCell));
@@ -330,6 +332,7 @@ function fireIfPossible(id) {
 
 function respawnPlayer(id, name, isBot) {
     let spawnCell = map.getEmptyCell();
+    spawnCell.isReserved = true;
     if (players[id] === undefined) scoreTable.push(new TableRaw(id, name, 0));
     return new Player(spawnCell.posX + spawnCell.size / 2, spawnCell.posY + spawnCell.size / 2, spawnCell, id, name, isBot);
 }
@@ -407,7 +410,9 @@ function botsTurn() {
                         }
                     }
                 }
-
+                player.cell.isReserved = false;
+                player.cell = map.getCellByPoint(player.posX, player.posY);
+                map.getCellByPoint(player.posX, player.posY).isReserved = true;
             }
         } else {
             players[pId] = respawnPlayer(pId, players[pId].name, true);

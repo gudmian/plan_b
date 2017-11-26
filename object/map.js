@@ -43,7 +43,7 @@ class Map {
     getEmptyCell() {
         var randI = this.getRandom(this.levelSize);
         var rangJ = this.getRandom(this.levelSize);
-        if (!this.cellMatrix[randI][rangJ].isBlock) {
+        if (!this.cellMatrix[randI][rangJ].isBlock && !this.cellMatrix[randI][rangJ].isReserved) {
             let cell = this.cellMatrix[randI][rangJ];
             return cell;
         }

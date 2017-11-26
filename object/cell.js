@@ -8,6 +8,7 @@ class Cell {
         this.posX = x * this.size;
         this.posY = y * this.size;
         this.isBlock = isBlock;
+        this.isReserved = false;
     }
 
     equals(cell){
