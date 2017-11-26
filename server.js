@@ -236,6 +236,7 @@ function createBots() {
     for (let i = 0; i < amountBots; i++) {
         let botId = shortid.generate();
         players[botId] = respawnPlayer(botId, true);
+        scoreTable[botId] = new TableRaw(botId, 0);
         lastBotAction = Date.now();
         botCount++;
     }
