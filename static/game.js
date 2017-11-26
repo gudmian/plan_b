@@ -334,7 +334,7 @@ socket.on("render", (state) => {
 		let scoresTabl = state.scores;
 
 		var y=10;
-			for (let scoreId in scoresTabl) {
+			for (let scoreId of scoresTabl) {
 
 				scoreContext.beginPath();
 				scoreContext.fillStyle = "blue";
