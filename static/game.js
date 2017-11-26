@@ -23,7 +23,7 @@ var url = new URL(url_string);
 var nickname = url.searchParams.get("nickname");
 
 socket.emit("new player", nickname);
-if (document.getElementById("sounds").checked == true) {
+if (document.getElementById("sounds").checked === true) {
 	audioRespawn.play();
 }
 

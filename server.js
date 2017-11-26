@@ -18,19 +18,25 @@ const server = http.Server(app);
 const mainSocket = socketIo(server);
 
 
-app.use("/static", express.static(path.join(__dirname, "/static")));
-
-app.get("/", (req, res) => {
-    res.sendfile("./static/welcome.html");
-});
 
 let connectionsAmount = 0;
+
 let amountBots = 1;
 let difficultyBots = "";
 let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
 let maxPowerups = 5;
+
+app.use("/static", express.static(path.join(__dirname, "/static")));
+
+app.get("/", (req, res) => {
+    if(connectionsAmount === 0) {
+        res.sendfile("./static/welcome.html");
+    } else {
+        res.sendfile("./static/welcomeInCreatedGame.html");
+    }
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -44,7 +50,22 @@ app.post("/firstlogin", (req, res) => {
     let params = "?nickname=" + nickname;
     res.redirect("./static/index.html" + params);
 });
+app.post("/login", (req, res) => {
+    let nickname = req.body.username;
+    connectionsAmount++;
+    let params = "?nickname=" + nickname;
+    res.redirect("./static/index.html" + params);
+});
 
+function updateBots() {
+    while (amountBots !== botCount) {
+        if (amountBots > botCount) {
+            addBot();
+        } else if (amountBots < botCount) {
+            removeBot();
+        }
+    }
+}
 
 let players = {};
 let bullets = {};
@@ -196,6 +217,7 @@ mainSocket.on("connection", (socket) => {
         } else {
             if (players[socket.id] !== undefined) players[socket.id] = respawnPlayer(socket.id, players[socket.id].name, players[socket.id].isBot);
         }
+        updateBots();
     });
 
     socket.on("disconnect", () => {
@@ -205,6 +227,7 @@ mainSocket.on("connection", (socket) => {
                 scoreTable.splice(index, 1);
             }
         }
+        connectionsAmount--;
     });
 
 
@@ -226,7 +249,7 @@ function createPowerup() {
 function addBot() {
     if (botCount < maxBots && Date.now() > lastBotAction + 300) {
         let botId = shortid.generate();
-        players[botId] = respawnPlayer(botId, "BOT-" + botCount, true);
+        players[botId] = respawnPlayer(botId, "Bot-" + botCount, true);
         lastBotAction = Date.now();
         botCount++;
     }
@@ -259,7 +282,7 @@ function sortScores() {
 function createBots() {
     for (let i = 0; i < amountBots; i++) {
         let botId = shortid.generate();
-        players[botId] = respawnPlayer(botId, "BOT-" + botCount, true);
+        players[botId] = respawnPlayer(botId, "Bot-" + botCount, true);
         lastBotAction = Date.now();
         botCount++;
     }

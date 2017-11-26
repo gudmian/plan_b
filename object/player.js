@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var Weapon = require("./weapon");
 var Power = require("./powerup");
