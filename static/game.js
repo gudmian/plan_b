@@ -320,7 +320,7 @@ socket.on("render", (state, map) => {
                 abilitiesContext.beginPath();
                 abilitiesContext.fillStyle = "red";
                 abilitiesContext.font = "bold 14pt Arial";
-                abilitiesContext.fillText(player.id, 50, 20);
+                abilitiesContext.fillText(player.name, 50, 20);
                 abilitiesContext.fillText("Weapon: ", 10, 40);
                 abilitiesContext.fillText(player.currentWeapon.name, 100, 40);
                 abilitiesContext.fillText("Patrons: ", 10, 60);
@@ -410,8 +410,8 @@ socket.on("render", (state, map) => {
             //render map
             let cellMatrix = map.cellMatrix;
 
-            let startX = (cellX - 5) > 0 ? (cellX - 5) : 0;
-            let startY = (cellY - 5) > 0 ? (cellY - 5) : 0;
+            let startX = (cellX - 5) >= 0 ? (cellX - 5) : 0;
+            let startY = (cellY - 5) >= 0 ? (cellY - 5) : 0;
             let endX = (cellX + 5) < map.levelSize ? (cellX + 5) : map.levelSize;
             let endY = (cellY + 5) < map.levelSize ? (cellY + 5) : map.levelSize;
             endX = startX === 0 ? 10 : endX;

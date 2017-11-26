@@ -435,8 +435,14 @@ function getMouseAngle(movement, socketId) {
 
     }
     if (player !== undefined) {
-        x = convertPlayerPosition(player.posX);
-        y = convertPlayerPosition(player.posY);
+        if (!player.isBot){
+            x = convertPlayerPosition(player.posX);
+            y = convertPlayerPosition(player.posY);
+        }
+        else{
+            x = player.posX;
+            y = player.posY;
+        }
     }
     let angle = Math.atan((movement.mouse_Y - y) / (movement.mouse_X - x ));
     if ((movement.mouse_Y - y) < 0 && (movement.mouse_X - x ) < 0) {
