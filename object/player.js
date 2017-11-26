@@ -22,6 +22,8 @@ class Player {
         this.weapon = {};
         this.currentWeapon;
         this.powerup;
+        this.checkStepDistance = 10;
+        this.proud = Math.random() * (this.radius + 200 - 2 * this.radius) + 2 * this.radius;
         this.isShield = false;
         this.velocity = 5;
         this.radKoeff = Math.PI / 180;
@@ -253,8 +255,6 @@ class Player {
         let accuracy = Math.random() * 5;
         this.actions.mouse_X = player.posX + accuracy;
         this.actions.mouse_Y = player.posY + accuracy;
-        // console.log(this.actions.mouse_X);
-        // console.log(this.actions.mouse_Y);
     }
 
     setDeffaultActions() {
@@ -298,46 +298,115 @@ class Player {
         }
     }
 
-    wanderToPlayer(player) {
-        // console.log("Distance between is", this.countDistToObject(player));
-        let minDist = Math.random() * (this.radius + 200 - this.radius + player.radius) + this.radius + player.radius;
-        if ((this.countDistToObject(player) >= minDist ) && (this.health >= player.health)) {
-            this.seek(player);
-        } else {
-            this.hide(player);
+
+    cleverWander(player, map) {
+        let minDist = this.proud;
+        console.log("Min dist", minDist);
+        let needSeek = (this.countDistToObject(player) >= minDist-10 ) && (this.health >= player.health);
+        if (needSeek) {
+            this.cleverSeek(player, map);
+        } else if(this.countDistToObject(player) < minDist+10 ){
+            this.cleverHide(player, map);
         }
     }
 
-    //HARD TO IMPLEMENT
-    cleverWander(player, map) {
-        let minDist = Math.random() * (this.radius + 200 - this.radius + player.radius) + this.radius + player.radius;
-        let needSeek = (this.countDistToObject(player) >= minDist ) && (this.health >= player.health);
+    cleverSeek(player, map) {
         let distX = player.posX;
         let distY = player.posY;
         let distAngle = this.getAngle(distX, distY);
         let sourceX = this.posX;
         let sourceY = this.posY;
-        let testX = sourceX + this.radius * Math.cos(distAngle + this.botTetta);
-        let testY = sourceY + this.radius * Math.sin(distAngle + this.botTetta);
+        let testX = sourceX + (this.radius + this.checkStepDistance) * Math.cos(distAngle + this.botTetta);
+        let testY = sourceY + (this.radius + this.checkStepDistance) * Math.sin(distAngle + this.botTetta);
         let cell = map.getCellByPoint(testX, testY);
         if (cell && cell.isBlock) {
-            this.botTetta += 10 * this.radKoeff;
+                this.botTetta += 30 * this.radKoeff;
         } else {
-            if (this.botTetta !== 0) {
-                if (sourceY > distY) {
-                    this.botTetta -= 10 * this.radKoeff;
-                } else {
-                    this.botTetta += 10 * this.radKoeff;
-                }
+            if (this.botTetta > 0) {
+                this.botTetta -= 5 * this.radKoeff;
+            } else if (this.botTetta < 0) {
+                this.botTetta += 5 * this.radKoeff;
             }
+            this.botTetta = 0;
+            this.localeSeek(testX, testY);
         }
-        if (needSeek) {
-            this.seek(player);
-        } else {
-            this.hide(player);
-        }
-
     }
+
+    localeSeek(x, y) {
+        if (this.posX < x) {
+            this.startGoRight();
+        }
+        if (this.posX > x) {
+            this.startGoLeft();
+        }
+        if (this.posY < y) {
+            this.startGoDown()
+        }
+        if (this.posY > y) {
+            this.startGoUp();
+        }
+    }
+    localeHide(x, y) {
+        if (this.posX > x) {
+            this.startGoRight();
+        }
+        if (this.posX < x) {
+            this.startGoLeft();
+        }
+        if (this.posY > y) {
+            this.startGoDown()
+        }
+        if (this.posY < y) {
+            this.startGoUp();
+        }
+    }
+
+    cleverHide(player, map) {
+        let distX = player.posX;
+        let distY = player.posY;
+        let distAngle = this.getAngle(distX, distY);
+        let sourceX = this.posX;
+        let sourceY = this.posY;
+        let testX = sourceX - (this.radius + this.checkStepDistance) * Math.cos(distAngle + this.botTetta);
+        let testY = sourceY - (this.radius + this.checkStepDistance) * Math.sin(distAngle + this.botTetta);
+        let cell = map.getCellByPoint(testX, testY);
+        if (cell && cell.isBlock) {
+            this.botTetta += 30 * this.radKoeff;
+        } else {
+            if (this.botTetta > 0) {
+                this.botTetta -= 5 * this.radKoeff;
+            } else if (this.botTetta < 0) {
+                this.botTetta += 5 * this.radKoeff;
+            }
+            this.botTetta = 0;
+            this.localeSeek(testX, testY);
+        }
+    }
+
+
+    bypassObstacles(player, map) {
+        let leftCell = map.getCellByPoint(player.posX - 25, player.posY);
+        let rightCell = map.getCellByPoint(player.posX + 25, player.posY);
+        let topCell = map.getCellByPoint(player.posX, player.posY - 25);
+        let bottomCell = map.getCellByPoint(player.posX, player.posY + 25);
+
+        if (leftCell.isBlock) {
+            this.botTetta += 10 * this.radKoeff;
+        }
+        if (topCell.isBlock) {
+            this.botTetta += 10 * this.radKoeff;
+        }
+        if (rightCell.isBlock) {
+            this.botTetta += 10 * this.radKoeff;
+        }
+        if (bottomCell.isBlock) {
+            this.botTetta += 10 * this.radKoeff;
+        }
+    }
+
+    //========================
+
+
     cleverWanderPower(power, map) {
 
         let distX = power.posX;
@@ -345,21 +414,20 @@ class Player {
         let distAngle = this.getAngle(distX, distY);
         let sourceX = this.posX;
         let sourceY = this.posY;
-        let testX = sourceX + this.radius * Math.cos(distAngle + this.botTetta);
+        let testX = sourceX + (this.radius) * Math.cos(distAngle + this.botTetta);
         let testY = sourceY + this.radius * Math.sin(distAngle + this.botTetta);
         let cell = map.getCellByPoint(testX, testY);
         if (cell && cell.isBlock) {
-            this.botTetta += 10 * this.radKoeff;
+            this.botTetta += 30 * this.radKoeff;
         } else {
-            if (this.botTetta !== 0) {
-                if (sourceY > distY) {
-                    this.botTetta -= 10 * this.radKoeff;
-                } else {
-                    this.botTetta += 10 * this.radKoeff;
-                }
+            if (this.botTetta > 0) {
+                this.botTetta -= 5 * this.radKoeff;
+            } else if (this.botTetta < 0) {
+                this.botTetta += 5 * this.radKoeff;
             }
+            this.botTetta = 0;
+            this.localeSeek(testX, testY);
         }
-            this.seek(power);
     }
 
     countDistToObject(object) {
@@ -413,7 +481,7 @@ class Player {
         let destX = player.posX;
         let destY = player.posY;
         let angle = this.getAngle(destX, destY);
-        let intervals = 10;
+        let intervals =  Math.floor(this.countDistToObject(player)/25);
         // let step = this.countDistToObject(player)/intervals;
         let dx = destX - this.posX;
         let dy = destY - this.posY;
@@ -422,13 +490,12 @@ class Player {
             let yFactor = destY * Math.sin(angle) / (intervals - steps);
             let testX = this.posX + xFactor;
             let testY = this.posY + yFactor;
-            // console.log("Own coords X:", this.posX, "Y:", this.posY);
-            // console.log("Missle coords X:", xFactor, "Y:", yFactor);
-
-            // console.log("Step:", steps, "Test coords X:", testX, "Y:", testY);
             let cell = map.getCellByPoint(testX, testY);
+            if(cell)console.log("CELL:", cell.posX, cell.posY);
+            console.log("PLAYER:", player.posX, player.posY);
+            console.log("TEST:", testX, testY);
             if (cell && cell.isBlock) {
-                // console.log("Behind the wall on step", steps, "coords X:", testX, "Y:", testY);
+                console.log("THE WALL");
                 return true;
             }
         }
@@ -447,7 +514,6 @@ class Player {
         if ((destY - this.posY) > 0 && (destX - this.posX) < 0) {
             angle += 2 * Math.acos(0)
         }
-        // console.log(angle);
         return angle;
     }
 }

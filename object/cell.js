@@ -10,6 +10,16 @@ class Cell {
         this.isBlock = isBlock;
     }
 
+    equals(cell){
+        if(!(cell instanceof Cell)) return false;
+        if(this.i !== cell.i) return false;
+        if(this.j !== cell.j) return false;
+        if(this.posX !== cell.posX) return false;
+        if(this.posY !== cell.posY) return false;
+        if(this.size !== cell.size) return false;
+        return true;
+    }
+
 }
 
 module.exports = Cell;
