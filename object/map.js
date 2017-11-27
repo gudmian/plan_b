@@ -29,7 +29,7 @@ class Map {
                 noise = Math.abs(noise - 0.5) * 2;
                 if(noise < 0) noise = 0;
                 if(noise > 1) noise = 1;
-                this.cellMatrix [i][j] = new Cell(i, j, isBorder || noise < 0.2);
+                this.cellMatrix [i][j] = new Cell(i, j, isBorder || noise < 0.15);
             }
 
         }

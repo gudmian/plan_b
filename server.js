@@ -501,7 +501,7 @@ function dropScores() {
         let maxScore = 0;
         if(scoreTable.length > 0) maxScore = scoreTable[0];
         if (maxScore.score < 1000) {
-            mainSocket.sockets.emit("render", renderData, map);
+            mainSocket.sockets.emit("render", renderData);
         } else {
             mainSocket.sockets.emit("game over", maxScore);
             dropScores();

@@ -501,8 +501,8 @@ class Player {
             this.getPower(powerupInArea, map);
         } else if (nearestPlayer !== null) {
             // console.log(this.id, " follows by", nearestPlayer.id);
-            // this.cleverWander(nearestPlayer, map);
-            this.wander(nearestPlayer);
+            this.cleverWander(nearestPlayer, map);
+            // this.wander(nearestPlayer);
         }
     }
 

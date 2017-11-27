@@ -188,11 +188,12 @@ let visionWidth = 500;
 let visionHeigth = 500;
 
 function isInVision(x, y, player) {
-
+    // return true;
+    x = convertCoordX(x);
+    y = convertCoordY(y);
     if (player !== undefined) {
 
-        if (x > (player.posX - visionWidth / 2) && x < (player.posX + visionWidth / 2) &&
-            y > (player.posY - visionHeigth / 2) && y < (player.posY + visionHeigth / 2)) {
+        if (x > 0 && x < 500 && y > 0 && y < 500) {
             return true;
         }
         else {
@@ -236,6 +237,7 @@ function convertCoordY(coord) {
 let oldCellX = 0;
 let oldCellY = 0;
 
+let map;
 
 socket.on("game over", (winner)=>{
 	winnerLR = winner.nick;
@@ -410,10 +412,7 @@ socket.on("render", (state, map) => {
     }
 
 
-    if (state.playersInf[socket.id] !== undefined && map) {
-        // let deltaX = state.playersInf[socket.id].posX <= 250 ?  state.playersInf[socket.id].posX : 250 - state.playersInf[socket.id].posX;
-        // let deltaY = state.playersInf[socket.id].posY <= 250 ?  state.playersInf[socket.id].posY : 250 - state.playersInf[socket.id].posY;
-        // dynamicContext.translate(deltaX, deltaY);
+    if (state.playersInf[socket.id] !== undefined) {
         maxPos = map.levelSize * map.cellMatrix [0][0].size;
         let cellX = state.playersInf[socket.id].cell.i;
         let cellY = state.playersInf[socket.id].cell.j;
@@ -453,71 +452,6 @@ socket.on("render", (state, map) => {
             oldCellY = state.playersInf[socket.id].cell.j;
         }
     }
-    //
-    // if (state.playersInf[socket.id] !== undefined && map) {
-    //     maxPos = map.levelSize * map.cellMatrix [0][0].size;
-    //     let cellX = state.playersInf[socket.id].cell.i;
-    //     let cellY = state.playersInf[socket.id].cell.j;
-    //     let posX = state.playersInf[socket.id].posX;
-    //     let posY = state.playersInf[socket.id].posY;
-    //     if (posX !== oldCellX || posY !== oldCellY) {
-    //         //render map
-    //         let cellMatrix = map.cellMatrix;
-    //         let cellSize = cellMatrix[0][0].size;
-    //         let startX = (cellX - 5) > 0 ? (cellX - 5) : 0;
-    //         let startY = (cellY - 5) > 0 ? (cellY - 5) : 0;
-    //         let endX = (cellX + 5) < map.levelSize ? (cellX + 5) : map.levelSize;
-    //         let endY = (cellY + 5) < map.levelSize ? (cellY + 5) : map.levelSize;
-    //         endX = startX === 0 ? 10 : endX;
-    //         endY = startY === 0 ? 10 : endY;
-    //         startX = endX === map.levelSize ? map.levelSize - 10 : startX;
-    //         startY = endY === map.levelSize ? map.levelSize - 10 : startY;
-    //
-    //         for (let i = startX; i < endX; i++) {
-    //             for (let j = startY; j < endY; j++) {
-    //                 let cell = map.cellMatrix[i][j];
-    //                 if (cell.isBlock) {
-    //                     staticContext.fillStyle = "black";
-    //                     if(i===startX){
-    //                         staticContext.fillRect(cell.size * (i - startX) + (posX % 50), cell.size * (j - startY), cell.size - (posX%50), cell.size);
-    //                     }
-    //                     if(i===endX-1){
-    //                         staticContext.fillRect(cell.size * (i - startX), cell.size * (j - startY), (posX%50), cell.size);
-    //                     }
-    //                     if(j===startY){
-    //                         staticContext.fillRect(cell.size * (i - startX), cell.size * (j - startY) + (posY % 50), cell.size, cell.size - (posY % 50));
-    //                     }
-    //                     if(j===endY-1){
-    //                         staticContext.fillRect(cell.size * (i - startX), cell.size * (j - startY), cell.size, (posY % 50));
-    //                     }
-    //                     else {
-    //                         staticContext.fillRect(cell.size * (i - startX) + (posX % 50), cell.size * (j - startY) + (posY % 50), cell.size, cell.size);
-    //                     }
-    //                 }
-    //                 else {
-    //                     ground = new Image();
-    //                     ground.src = "../static/textures/grass00.png";
-    //                     ground.onload = function () {
-    //                         // staticContext.drawImage(ground, cell.size * (i - startX), cell.size * (j - startY), cell.size - posX % 50, cell.size - posY % 50)
-    //                         if(j===startY){
-    //                             staticContext.drawImage(ground,cell.size * (i - startX), cell.size * (j - startY), cell.size, cell.size - posY % 50);
-    //                         }
-    //                         if(j===endY-1){
-    //                             staticContext.drawImage(ground,cell.size * (i - startX), cell.size * (j - startY), cell.size, cell.size + posY % 50);
-    //                         }
-    //                         if(i===startX){
-    //                             staticContext.drawImage(ground,cell.size * (i - startX), cell.size * (j - startY), cell.size - posX % 50, cell.size);
-    //                         }
-    //                         if(i===endX-1){
-    //                             staticContext.drawImage(ground,cell.size * (i - startX), cell.size * (j - startY), cell.size + posX % 50, cell.size);
-    //                         }
-    //                         else {
-    //                             staticContext.drawImage(ground, cell.size * (i - startX), cell.size * (j - startY), cell.size, cell.size);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
 
     scoreContext.clearRect(0, 0, 800, 800);
 
@@ -546,23 +480,7 @@ socket.on("render", (state, map) => {
     renderPowerups();
 });
 
-socket.on("render static", (map) => {
-    // let cellMatrix = map.cellMatrix;
-    // for (let i = 0; i < map.levelSize; i++) {
-    //     for (let j = 0; j < map.levelSize; j++) {
-    //         let cell = map.cellMatrix[i][j];
-    //         if (cell.isBlock) {
-    //             staticContext.fillStyle = "black";
-    //             staticContext.fillRect(cell.posX, cell.posY, cell.size, cell.size);
-    //         }
-    //         else {
-    //             ground = new Image();
-    //             ground.src = "../static/textures/grass00.png";
-    //             ground.onload = function () {
-    //                 staticContext.drawImage(ground, cell.posX, cell.posY, cell.size, cell.size)
-    //             }
-    //         }
-    //     }
-    // }
+socket.on("render static", (mapa) => {
+    map = mapa;
 });
 
