@@ -27,6 +27,7 @@ let maxBots = 15;
 let botCount = 0;
 let lastBotAction = 0;
 let maxPowerups = 5;
+let mapType = 1;
 
 app.use("/static", express.static(path.join(__dirname, "/static")));
 
@@ -44,6 +45,7 @@ app.post("/firstlogin", (req, res) => {
     let complexity = req.body.group1;
     let nickname = req.body.username;
     let botsInf = req.body.botsAmount;
+    let levelSize = req.body.group2;
     connectionsAmount++;
     amountBots = parseInt(botsInf);
     if (complexity === "easy") {
@@ -52,6 +54,14 @@ app.post("/firstlogin", (req, res) => {
         difficultyBots = DIFF.NORMAL;
     } else {
         difficultyBots = DIFF.HARD;
+    }
+
+    if(levelSize === "small"){
+        mapType = 1;
+    } else if(levelSize === "normal"){
+        mapType = 2;
+    } else {
+        mapType = 3;
     }
     let params = "?nickname=" + nickname;
     res.redirect("./static/index.html" + params);
@@ -96,7 +106,7 @@ for (let player in players) {
 mainSocket.on("connection", (socket) => {
 
     if (!map) {
-        map = new Map(1);
+        map = new Map(mapType);
         createBots();
         createPowerup();
     }
