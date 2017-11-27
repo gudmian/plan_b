@@ -317,6 +317,16 @@ class Player {
         }
     }
 
+    wander (player){
+        let minDist = this.proud;
+        // console.log("Min dist", minDist);
+        let needSeek = (this.countDistToObject(player) >= minDist-10 ) && (this.health >= player.health);
+        if (needSeek) {
+            this.seek(player);
+        } else if(this.countDistToObject(player) < minDist+10 ){
+            this.hide(player);
+        }
+    }
 
     cleverWander(player, map) {
         let minDist = this.proud;
@@ -491,7 +501,8 @@ class Player {
             this.getPower(powerupInArea, map);
         } else if (nearestPlayer !== null) {
             // console.log(this.id, " follows by", nearestPlayer.id);
-            this.cleverWander(nearestPlayer, map);
+            // this.cleverWander(nearestPlayer, map);
+            this.wander(nearestPlayer);
         }
     }
 
