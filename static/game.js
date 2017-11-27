@@ -17,7 +17,7 @@ dynamicCanvas.width = 500;
 staticCanvas.height = 500;
 dynamicCanvas.height = 500;
 let isNeedRender = true;
-
+var winnerLR = "";
 
 var url_string = window.location.href;
 var url = new URL(url_string);
@@ -238,7 +238,7 @@ let oldCellY = 0;
 
 
 socket.on("game over", (winner)=>{
-
+	winnerLR = winner.nick;
 });
 
 socket.on("render", (state, map) => {
@@ -337,6 +337,8 @@ socket.on("render", (state, map) => {
                 abilitiesContext.fillText(player.currentWeapon.patrons, 100, 60);
                 abilitiesContext.fillText("skin: ", 10, 80);
                 abilitiesContext.fillText(player.skin, 100, 80);
+				abilitiesContext.fillText("Winner of last round: ", 10, 100);
+				abilitiesContext.fillText(winnerLR, 200, 100);
                 abilitiesContext.closePath();
             }
         }
