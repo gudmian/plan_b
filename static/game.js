@@ -243,7 +243,7 @@ socket.on("game over", (winner)=>{
 	winnerLR = winner.nick;
 });
 
-socket.on("render", (state, map) => {
+socket.on("render", (state) => {
 
     let tex_player = new Image();
     tex_player.src = "../static/textures/players/apier.png";
@@ -412,7 +412,7 @@ socket.on("render", (state, map) => {
     }
 
 
-    if (state.playersInf[socket.id] !== undefined) {
+    if (state.playersInf[socket.id] !== undefined && map !== undefined) {
         maxPos = map.levelSize * map.cellMatrix [0][0].size;
         let cellX = state.playersInf[socket.id].cell.i;
         let cellY = state.playersInf[socket.id].cell.j;
